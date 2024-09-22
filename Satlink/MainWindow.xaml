@@ -1,0 +1,86 @@
+﻿<Window x:Class="Satlink.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Satlink"
+        xmlns:GeneralControlHeader="clr-namespace:Satlink.GeneralControls.Header"
+        WindowStyle="None" 
+        MouseDown="Window_MouseDown"
+        Title="Satlink Aemet" Height="600" Width="900"
+        Background="{DynamicResource MainWindowBackgroudBrush}">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="\Style\GeneralStyles.xaml"/>
+                <ResourceDictionary Source="\Style\MainWindowStyles.xaml"/>
+                <ResourceDictionary Source="\Resources\Imgs\VectorImgs.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="MyGrid" TargetType="{x:Type DataGridCell}">
+                <Setter Property="Foreground" Value="Transparent"/>
+            </Style>
+            <CollectionViewSource x:Key="AllZonesList" Source="{Binding AllZonesList}" />
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid Margin="0,0,0,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="2 0" >
+            <GeneralControlHeader:Header_Control  Grid.Row="0" />
+        </Grid>
+        
+        <Grid Grid.Row="1" Margin="2 0" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="250" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="Gray" Text="Zona:  " Visibility="{Binding FiltroSesionesVisible}" />
+            
+            <ComboBox Grid.Column="1" Width="250" Height="25" HorizontalAlignment="Right" Background="White" BorderBrush="Transparent" BorderThickness="0" Focusable="False" ItemsSource="{Binding AllZonesList}" SelectedValue="{Binding Path=Zone}" SelectedValuePath="Key" DisplayMemberPath="Value" />
+
+            <Button Grid.Column="2" Content="Descargar Datos " HorizontalAlignment="Left" VerticalAlignment="Center" Command="{Binding Path=DownloadCommand}" Cursor="Hand" Margin="20,0" Height="25" Width="130">
+                <Button.Template>
+                    <ControlTemplate>
+                        <Border Background="GhostWhite" BorderBrush="Gainsboro" BorderThickness="0">
+                            <StackPanel Style="{StaticResource StackPanelOver}" HorizontalAlignment="Center" Orientation="Horizontal" Height="25" Width="135" Cursor="Hand">
+                                <TextBlock Text="Descargar Datos  " VerticalAlignment="Center" Foreground="Brown" FontWeight="Bold" FontSize="12" Margin="12,0,0,1"/>
+                                <TextBlock Style="{StaticResource iPlus}" Width="20" Height="20"/>
+                            </StackPanel>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </Grid>
+        <Grid Grid.Row="2" Margin="2 0" >
+            <DataGrid Name="AemetGrid" ColumnWidth="*" RowHeight="30" ItemsSource="{Binding ZonePredictions}" local:DataGridColumnsBehavior.BindableColumns="{Binding ColumnCollection}" SelectionMode="Single" SelectionUnit="FullRow" AutoGenerateColumns="False" Margin="10 10 10 10" 
+			    VirtualizingStackPanel.IsVirtualizing="True" 
+			    VirtualizingStackPanel.VirtualizationMode="Recycling"
+			    ScrollViewer.CanContentScroll="False">
+                <DataGrid.Resources>
+                    <Style TargetType="{x:Type DataGridCell}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type DataGridCell}">
+                                    <Grid Background="{TemplateBinding Background}">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Grid>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                    <Style BasedOn="{StaticResource {x:Type DataGridColumnHeader}}" TargetType="{x:Type DataGridColumnHeader}">
+                        <Setter Property="Background" Value="{StaticResource gradiantBlueCorporative}" />
+                        <Setter Property="TextElement.Foreground"  Value="White" />
+                    </Style>
+                </DataGrid.Resources>
+            </DataGrid>
+        </Grid>
+    </Grid>
+</Window>

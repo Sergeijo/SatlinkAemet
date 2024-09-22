@@ -1,0 +1,186 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Satlink.GeneralControls.Header">
+    
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="\Style\GeneralStyles.xaml"/>       
+    </ResourceDictionary.MergedDictionaries>
+
+    <!-- ************************************ -->
+    <!-- *************** GRIDS ************** -->
+    <!-- ************************************ -->
+
+    <!-- First Row -->
+    <Style x:Key="FirstRow" TargetType="Grid">
+        <Setter Property="Margin" Value="30 0" />
+    </Style>
+
+    <!-- Second Row -->
+    <Style x:Key="SecondRow" TargetType="Grid">
+        <Setter Property="Margin" Value="0,10,10,0" />
+    </Style>
+
+    <!-- ************************************ -->
+    <!-- *************** LABEL ************** -->
+    <!-- ************************************ -->
+
+    <!-- Header Title -->
+    <Style x:Key="HeaderTitle" TargetType="Label">
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="FontSize" Value="50"/>
+        <Setter Property="FontWeight" Value="UltraLight"/>
+    </Style>
+
+    <!-- ************************************ -->
+    <!-- ********** CONTENT CONTROL ********* -->
+    <!-- ************************************ -->
+
+    <!-- Logo Zone -->
+    <Style x:Key="LogoZone" TargetType="ContentControl">
+        <Setter Property="Margin" Value="-4,0,171,27"/>
+        <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+        <Setter Property="Height" Value="5"/>
+        <Setter Property="VerticalAlignment" Value="Bottom"/>
+    </Style>
+
+    <!-- ************************************ -->
+    <!-- ************** BUTTONS ************* -->
+    <!-- ************************************ -->
+    <!-- Base Button-->
+    <Style x:Key="BaseButton" TargetType="Button">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+    </Style>
+    
+    <!-- Close Window Button -->
+    <Style x:Key="CloseWindowButton" TargetType="{x:Type Button}" BasedOn="{StaticResource BaseButton}">
+        <Setter Property="Height" Value="15" />
+        <Setter Property="Width" Value="15" />
+        <Setter Property="Margin" Value="0,0,5,0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid Background="#00000000">
+                        <Path x:Name="path1" Data="M19.966416,0.5 C21.19324,0.49999976 22.420066,0.96815085 23.356366,1.9044533 L58.734366,37.282157 94.112365,1.9044533 C95.984,0.031848907 99.019667,0.031848907 100.89224,1.9044533 L115.56428,16.576503 C117.43591,18.44814 117.43591,21.483821 115.56428,23.356426 L80.186393,58.734004 115.56428,94.111591 C117.43591,95.984195 117.43591,99.019847 115.56428,100.89148 L100.89224,115.56355 C99.019667,117.43615 95.984,117.43615 94.112365,115.56355 L58.734366,80.185855 23.356366,115.56355 C21.483767,117.43615 18.449057,117.43615 16.576487,115.56355 L1.9044499,100.89148 C0.0318501,99.019847 0.0318501,95.984195 1.9044499,94.111591 L37.282332,58.734004 1.9044499,23.356426 C0.0318501,21.483821 0.0318501,18.44814 1.9044499,16.576503 L16.576487,1.9044533 C17.512772,0.96815085 18.739592,0.49999976 19.966416,0.5 z" Margin="2" Stretch="Fill" StrokeThickness="1" StrokeLineJoin="Round" Stroke="{x:Null}" Fill="{StaticResource gradiantBlueCorporative}">
+
+                        </Path>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsFocused" Value="True"/>
+                        <Trigger Property="IsDefaulted" Value="True"/>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Stroke" TargetName="path1" Value="White"/>
+                            <Setter Property="Fill" TargetName="path1" Value="#666"/>
+                            <Setter Property="StrokeThickness" TargetName="path1" Value="1"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Fill" TargetName="path1" Value="White"/>
+                            <Setter Property="Stroke" TargetName="path1" Value="#666"/>
+                            <Setter Property="StrokeThickness" TargetName="path1" Value="0"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False"/>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Maximiced Window Button -->
+    <Style x:Key="MaximicedWindowButton" TargetType="{x:Type Button}" BasedOn="{StaticResource BaseButton}">
+        <Setter Property="Width" Value="15"/>
+        <Setter Property="Height" Value="15"/>
+        <Setter Property="Margin" Value="0,5,26,6"/>
+        <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Grid Background="#00000000">
+                            <Path x:Name="path1" Margin="2" Stretch="Fill" StrokeThickness="1" StrokeLineJoin="Round" Stroke="{x:Null}" Fill="{StaticResource gradiantBlueCorporative}" >
+                                <Path.Data>
+                                    <GeometryGroup >
+                                        <RectangleGeometry Rect="80,80 140 140"/>
+                                        <RectangleGeometry Rect="0,150 120 120"/>
+                                    </GeometryGroup>
+                                </Path.Data>
+                            </Path>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True"/>
+                            <Trigger Property="IsDefaulted" Value="True"/>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Stroke" TargetName="path1" Value="White"/>
+                                <Setter Property="Fill" TargetName="path1" Value="#666"/>
+                                <Setter Property="StrokeThickness" TargetName="path1" Value="1"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Fill" TargetName="path1" Value="White"/>
+                                <Setter Property="Stroke" TargetName="path1" Value="#666"/>
+                                <Setter Property="StrokeThickness" TargetName="path1" Value="0"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False"/>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+    </Style>
+
+    <!-- Minimiced Window Button -->
+    <Style x:Key="MinimicedWindowButton" TargetType="{x:Type Button}"  BasedOn="{StaticResource BaseButton}">
+        <Setter Property="Width" Value="13"/>
+        <Setter Property="Height" Value="9"/>
+        <Setter Property="Margin" Value="0,8,44,8"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid Background="#00000000">
+                        <Path x:Name="path" Data="F1 M 400,322.374L 377.627,300.001L 340.73,263.104C 338.777,261.151 338.777,257.985 340.73,256.033L 356.032,240.731C 357.985,238.778 361.15,238.778 363.103,240.731L 400,277.628L 436.897,240.731C 438.849,238.778 442.015,238.778 443.968,240.731L 459.27,256.033C 461.222,257.985 461.222,261.151 459.27,263.104L 422.373,300L 400,322.374 Z " Stretch="Fill" Fill="{StaticResource gradiantBlueCorporative}">
+                        </Path>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsFocused" Value="True"/>
+                        <Trigger Property="IsDefaulted" Value="True"/>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Stroke" TargetName="path" Value="White"/>
+                            <Setter Property="Fill" TargetName="path" Value="#666"/>
+                            <Setter Property="StrokeThickness" TargetName="path" Value="1"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Fill" TargetName="path" Value="White"/>
+                            <Setter Property="Stroke" TargetName="path" Value="#666"/>
+                            <Setter Property="StrokeThickness" TargetName="path" Value="0"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False"/>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Question Info Button -->
+    <Style x:Key="QuestionInfoButton" TargetType="Button" BasedOn="{StaticResource BaseButton}">
+        <Setter Property="Width" Value="10" />
+        <Setter Property="Height" Value="14" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Margin" Value="0,0,65,0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <TextBlock x:Name="textblock" Text="?" Foreground="{StaticResource gradiantBlueCorporative}" HorizontalAlignment="Center" FontSize="14" LineHeight="10" FontWeight="Bold" Padding="0" Margin="0 -4 0 0"/>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsFocused" Value="True"/>
+                        <Trigger Property="IsDefaulted" Value="True"/>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Foreground" TargetName="textblock" Value="#666"/>
+                            <Setter Property="FontSize" TargetName="textblock" Value="12"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Foreground" TargetName="textblock" Value="White"/>
+                            <Setter Property="FontSize" TargetName="textblock" Value="12"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False"/>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>
