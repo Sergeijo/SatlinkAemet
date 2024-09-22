@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.35229.62
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Satlink", "Satlink.csproj", "{299F082E-8984-456E-8FD6-620C49D2D3BA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Satlink.Domain", "..\Satlink.Domain\Satlink.Domain.csproj", "{419D33F2-D3B6-464A-8517-72A159DEF25A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Satlink.Infrastructure", "..\Satlink.Infrastructure\Satlink.Infrastructure.csproj", "{E5CB82F3-A9C2-4407-8846-77F1D6533259}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Satink.Logic", "..\Satlink.Logic\Satink.Logic.csproj", "{661E88D1-B60B-4592-8F00-C31F39992416}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{299F082E-8984-456E-8FD6-620C49D2D3BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{299F082E-8984-456E-8FD6-620C49D2D3BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{299F082E-8984-456E-8FD6-620C49D2D3BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{299F082E-8984-456E-8FD6-620C49D2D3BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{419D33F2-D3B6-464A-8517-72A159DEF25A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{419D33F2-D3B6-464A-8517-72A159DEF25A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{419D33F2-D3B6-464A-8517-72A159DEF25A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{419D33F2-D3B6-464A-8517-72A159DEF25A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5CB82F3-A9C2-4407-8846-77F1D6533259}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5CB82F3-A9C2-4407-8846-77F1D6533259}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5CB82F3-A9C2-4407-8846-77F1D6533259}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5CB82F3-A9C2-4407-8846-77F1D6533259}.Release|Any CPU.Build.0 = Release|Any CPU
+		{661E88D1-B60B-4592-8F00-C31F39992416}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{661E88D1-B60B-4592-8F00-C31F39992416}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{661E88D1-B60B-4592-8F00-C31F39992416}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{661E88D1-B60B-4592-8F00-C31F39992416}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7AC8E01B-7EE9-4FC0-BBE1-817739B72C0F}
+	EndGlobalSection
+EndGlobal
