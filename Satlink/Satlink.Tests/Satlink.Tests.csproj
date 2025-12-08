@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Satlink.Logic\Satink.Logic.csproj" />
+    <ProjectReference Include="..\..\Satlink.Domain\Satlink.Domain.csproj" />
+    <ProjectReference Include="..\..\Satlink.Infrastructure\Satlink.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>
