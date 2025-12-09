@@ -35,13 +35,19 @@ namespace Satlink
             mainWindow.Show();
         }
 
-        private void ConfigureServices(ServiceCollection serviceCollection)
+        private void ConfigureServices(IServiceCollection serviceCollection)
         {
             serviceCollection.RegisterInfrastructureDependencies(Configuration);
             serviceCollection.RegisterLogicDependencies();
-            //serviceCollection.AddOptions<ApplicationSettings>().Configure<IConfiguration>((settings, configuration) => configuration.GetSection("AppConfig").Bind(settings));
-            //serviceCollection.AddSingleton(x => x.GetService<IOptions<ApplicationSettings>>().Value);
-            serviceCollection.Configure<ApplicationSettings>(options => Configuration.GetSection("AppConfig").Bind(options));
+
+            var appSettings = new ApplicationSettings
+            {
+                url = Configuration["AppConfig:url"],
+                api_key = Configuration["AppConfig:api_key"]
+            };
+
+            serviceCollection.AddSingleton<IOptions<ApplicationSettings>>(Microsoft.Extensions.Options.Options.Create(appSettings));
+
             serviceCollection.AddTransient(typeof(MainWindow));
         }
     }
