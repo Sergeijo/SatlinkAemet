@@ -4,9 +4,11 @@ namespace Satlink.Tests
 {
     internal class Program
     {
-        public static int RunTests()
+        public static void Main()
         {
-            return TestRunner.RunAll();
+            TestRunner.RunAll();
+            Console.WriteLine("Press any key to exit...");
+            Console.ReadKey(true);
         }
     }
 }
