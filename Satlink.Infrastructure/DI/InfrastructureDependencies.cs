@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Satlink.Logic;
+
+using Satlink.Infrastructure;
 
 namespace Satlink.Infrastructure.DI
 {

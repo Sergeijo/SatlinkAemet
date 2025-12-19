@@ -50,6 +50,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include=".github\copilot-instructions.md" />
+    <None Include=".github\workflows\satlink-api-cd.yml" />
+    <None Include=".github\workflows\satlink-api-ci.yml" />
+    <None Include="Satlink.Api.Tests\Satlink.Api.Tests.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="Fonts\fontawesome-webfont.ttf" />
     <Resource Include="Resources\Imgs\VectorImgs.xaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

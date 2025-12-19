@@ -1,8 +1,11 @@
 using System;
-using Satlink.Logic;
-using Satlink.Infrastructure;
-using Satlink.Domain.Models;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Satlink.Domain.Models;
+using Satlink.Infrastructure;
+using Satlink.Logic;
 
 namespace Satlink.Tests
 {
@@ -14,17 +17,29 @@ namespace Satlink.Tests
 
             try
             {
-                var mockRepo = new DummyRepository();
-                var service = new AemetValuesService(mockRepo);
+                DummyRepository mockRepo = new DummyRepository();
+                AemetValuesService service = new AemetValuesService(mockRepo);
 
-                var result = service.GetAemetMarineZonePredictionValues("key", "http://not_a_valid_url_for_test", 1);
-                if (!result.IsFailure) { failures++; Console.WriteLine("Expected failure in AemetValuesService test"); }
+                Result result = service.GetAemetMarineZonePredictionValues("key", "http://not_a_valid_url_for_test", 1);
+                if (!result.IsFailure)
+                {
+                    failures++;
+                    Console.WriteLine("Expected failure in AemetValuesService test");
+                }
 
-                var ok = Result.Ok();
-                if (!ok.Success) { failures++; Console.WriteLine("Result.Ok failed"); }
+                Result ok = Result.Ok();
+                if (!ok.Success)
+                {
+                    failures++;
+                    Console.WriteLine("Result.Ok failed");
+                }
 
-                var fail = Result.Fail("err");
-                if (!fail.IsFailure) { failures++; Console.WriteLine("Result.Fail failed"); }
+                Result fail = Result.Fail("err");
+                if (!fail.IsFailure)
+                {
+                    failures++;
+                    Console.WriteLine("Result.Fail failed");
+                }
             }
             catch (Exception ex)
             {
@@ -36,9 +51,14 @@ namespace Satlink.Tests
         }
     }
 
-    class DummyRepository : IAemetRepository
+    internal sealed class DummyRepository : IAemetRepository
     {
         public IEnumerable<Request> GetAllAemetItems() => new List<Request>();
-        public System.Threading.Tasks.Task<Request> GetAemetItems(int id) => System.Threading.Tasks.Task.FromResult<Request>(null);
+
+        public Task<Request> GetAemetItems(int id) => Task.FromResult<Request>(null!);
+
+        public Task<List<Request>> GetAllAemetItemsAsync(CancellationToken cancellationToken) => Task.FromResult(new List<Request>());
+
+        public Task<Request?> GetAemetItemByIdAsync(int id, CancellationToken cancellationToken) => Task.FromResult<Request?>(null);
     }
 }
