@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -7,6 +7,13 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Satlink.Api\**\*.cs" />
+    <Compile Remove="Satlink.Api.Tests\**\*.cs" />
+    <None Remove="Satlink.Api\**\*" />
+    <None Remove="Satlink.Api.Tests\**\*" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Remove="Fonts\fontawesome-webfont.ttf" />
@@ -47,6 +54,12 @@
 
   <ItemGroup>
     <Folder Include="GeneralControls\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include=".github\copilot-instructions.md" />
+    <None Include=".github\workflows\satlink-api-cd.yml" />
+    <None Include=".github\workflows\satlink-api-ci.yml" />
   </ItemGroup>
 
   <ItemGroup>

@@ -7,6 +7,7 @@ namespace Satlink.Logic.DI
         public static void RegisterLogicDependencies(this IServiceCollection services)
         {
             services.AddScoped<IAemetValuesService, AemetValuesService>();
+            services.AddScoped<IRequestsService, RequestsService>();
         }
     }
 }
