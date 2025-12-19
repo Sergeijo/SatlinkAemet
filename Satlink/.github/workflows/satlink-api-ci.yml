@@ -1,0 +1,76 @@
+name: satlink-api-ci
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "Satlink.Api/**"
+      - "Satlink.Api.Tests/**"
+      - "Satlink.Logic/**"
+      - "Satlink.Infrastructure/**"
+      - "Satlink.Domain/**"
+      - ".github/workflows/satlink-api-*.yml"
+  pull_request:
+    paths:
+      - "Satlink.Api/**"
+      - "Satlink.Api.Tests/**"
+      - "Satlink.Logic/**"
+      - "Satlink.Infrastructure/**"
+      - "Satlink.Domain/**"
+      - ".github/workflows/satlink-api-*.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Install SonarScanner
+        if: ${{ secrets.SONAR_HOST_URL != '' && secrets.SONAR_TOKEN != '' && secrets.SONAR_PROJECT_KEY != '' }}
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      - name: SonarQube begin
+        if: ${{ secrets.SONAR_HOST_URL != '' && secrets.SONAR_TOKEN != '' && secrets.SONAR_PROJECT_KEY != '' }}
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+        run: |
+          dotnet-sonarscanner begin \
+            /k:"$SONAR_PROJECT_KEY" \
+            /d:sonar.host.url="$SONAR_HOST_URL" \
+            /d:sonar.token="$SONAR_TOKEN" \
+            /d:sonar.cs.opencover.reportsPaths="TestResults/**/coverage.cobertura.xml"
+
+      - name: Restore
+        run: dotnet restore "Satlink/Satlink.Api/Satlink.Api.csproj"
+
+      - name: Build
+        run: dotnet build "Satlink/Satlink.Api/Satlink.Api.csproj" -c Release --no-restore
+
+      - name: Test with coverage
+        run: |
+          dotnet test "Satlink.Api.Tests/Satlink.Api.Tests.csproj" -c Release --collect:"XPlat Code Coverage" --results-directory ./TestResults
+
+      - name: SonarQube end
+        if: ${{ secrets.SONAR_HOST_URL != '' && secrets.SONAR_TOKEN != '' && secrets.SONAR_PROJECT_KEY != '' }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: dotnet-sonarscanner end /d:sonar.token="$SONAR_TOKEN"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults
