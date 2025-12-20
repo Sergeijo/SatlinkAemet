@@ -7,7 +7,7 @@ namespace Satlink.Api.Tests.LegacySatlinkTests;
 /// </summary>
 public sealed class LegacySatlinkTestRunner
 {
-    [Fact(Skip = "Legacy EF-dependent runner is kept for reference but is not stable across environments.")]
+    [Fact]
     public void LegacyTests_RunAll_ReturnsZeroFailures()
     {
         int failures = 0;
