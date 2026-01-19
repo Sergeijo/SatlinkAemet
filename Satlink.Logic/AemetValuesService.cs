@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Satlink.Domain.Models;
 using Satlink.Infrastructure;
@@ -25,7 +28,7 @@ namespace Satlink.Logic
         }
 
         /// <inheritdoc />
-        public Result<List<Request>> GetAemetMarineZonePredictionValues(string apiKey, string url, int zone)
+        public async Task<Result<List<Request>>> GetAemetMarineZonePredictionValuesAsync(string apiKey, string url, int zone, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -35,12 +38,22 @@ namespace Satlink.Logic
                 string result = webClient.DownloadString($"{url}/{zone}");
                 FicheroTemporal fileAux = Newtonsoft.Json.JsonConvert.DeserializeObject<FicheroTemporal>(result);
 
-                // I changed the web request method due to problems with special characters in the json
-                HttpClient client = new HttpClient();
-                System.Threading.Tasks.Task<HttpResponseMessage> result2 = client.GetAsync(fileAux.datos);
-                System.Threading.Tasks.Task<string> content = result2.Result.Content.ReadAsStringAsync();
+                if (fileAux is null || string.IsNullOrWhiteSpace(fileAux.datos))
+                {
+                    return Result.Fail<List<Request>>("No items found.");
+                }
 
-                List<Request> auxValues = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Request>>(content.Result.ToString());
+                // I changed the web request method due to problems with special characters in the json
+                using HttpClient client = new HttpClient();
+                using HttpResponseMessage response = await client.GetAsync(fileAux.datos, cancellationToken).ConfigureAwait(false);
+
+                response.EnsureSuccessStatusCode();
+
+                // FIX: AEMET sometimes returns an invalid charset in Content-Type; avoid ReadAsStringAsync().
+                byte[] contentBytes = await response.Content.ReadAsByteArrayAsync(cancellationToken).ConfigureAwait(false);
+                string content = Encoding.UTF8.GetString(contentBytes);
+
+                List<Request> auxValues = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Request>>(content);
 
                 return auxValues is null ? Result.Fail<List<Request>>("No items found.") : Result.Ok(auxValues);
             }

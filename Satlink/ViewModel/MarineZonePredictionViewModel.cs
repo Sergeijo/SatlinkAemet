@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -8,21 +8,21 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Extensions.Options;
 
-using Satlink.Logic;
+using Satlink.ApiClient;
 
 namespace Satlink
 {
     class MarineZonePredictionViewModel : ObservableObject
     {
-        private readonly IAemetValuesService _aemetValuesService;
+        private readonly IAemetValuesProvider _aemetValuesProvider;
 
         private ObservableCollection<MarineZonePrediction> _ZonePredictionsList;
 
         private readonly IOptions<ApplicationSettings> configuration;
 
-        public MarineZonePredictionViewModel(IAemetValuesService aemetValuesService, IOptions<ApplicationSettings> appConfig)
+        public MarineZonePredictionViewModel(IAemetValuesProvider aemetValuesProvider, IOptions<ApplicationSettings> appConfig)
         {
-            _aemetValuesService = aemetValuesService;
+            _aemetValuesProvider = aemetValuesProvider;
             configuration = appConfig;
         }
 
@@ -137,11 +137,11 @@ namespace Satlink
             {
                 _ZonePredictionsList = new ObservableCollection<MarineZonePrediction>();
 
-                var result = _aemetValuesService.GetAemetMarineZonePredictionValues(configuration.Value?.api_key, configuration.Value?.url, Zone);
+                AemetValuesResult result = _aemetValuesProvider.GetAemetMarineZonePredictionValues(configuration.Value?.api_key, configuration.Value?.url, Zone);
 
                 if (result.Success)
                 {
-                    result.Value.FirstOrDefault().prediccion.zona.ForEach(zona => _ZonePredictionsList.Add(new MarineZonePrediction()
+                    result.Value?.FirstOrDefault().prediccion.zona.ForEach(zona => _ZonePredictionsList.Add(new MarineZonePrediction()
                     {
                         Id = zona.id,
                         Texto = zona.texto,

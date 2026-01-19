@@ -28,7 +28,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Satlink.Logic\Satink.Logic.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="Satlink.Api\Satlink.Api.csproj" />
+    <ProjectReference Include="..\Satlink.Domain\Satlink.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

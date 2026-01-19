@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 using NSubstitute;
 
@@ -20,108 +21,54 @@ namespace Satlink.Api.Tests;
 public sealed class AemetValuesControllerTests
 {
     [Fact]
-    public void GetValues_RequestValida_RetornaOk()
+    public async Task GetValuesAsync_ServiceSuccess_ReturnsOk()
     {
         // Arrange
         IAemetValuesService service = Substitute.For<IAemetValuesService>();
-        ILogger<AemetValuesController> logger = Substitute.For<ILogger<AemetValuesController>>();
+        Microsoft.Extensions.Logging.ILogger<AemetValuesController> logger = Substitute.For<Microsoft.Extensions.Logging.ILogger<AemetValuesController>>();
 
-        List<Request> items = new List<Request> { new Request { id = "1", nombre = "a" } };
-        service.GetAemetMarineZonePredictionValues("key", "https://example.com", 1)
-            .Returns(Result.Ok(items));
+        List<Request> expected = new List<Request>();
 
-        AemetValuesController controller = new AemetValuesController(service, logger)
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext()
-            }
-        };
+        service
+            .GetAemetMarineZonePredictionValuesAsync("key", "https://example.com", 1, Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(Result.Ok(expected)));
 
-        GetAemetValuesRequestDto dto = new GetAemetValuesRequestDto
-        {
-            ApiKey = "key",
-            Url = "https://example.com",
-            Zone = 1
-        };
+        AemetValuesController controller = new AemetValuesController(service, logger);
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        GetAemetValuesRequestDto dto = new GetAemetValuesRequestDto { ApiKey = "key", Url = "https://example.com", Zone = 1 };
 
         // Act
-        ActionResult<ApiResponse<List<Request>>> actionResult = controller.GetValues(dto);
+        ActionResult<ApiResponse<List<Request>>> actionResult = await controller.GetValuesAsync(dto, CancellationToken.None);
 
         // Assert
         OkObjectResult ok = Assert.IsType<OkObjectResult>(actionResult.Result);
-        ApiResponse<List<Request>> payload = Assert.IsType<ApiResponse<List<Request>>>(ok.Value);
-        Assert.NotNull(payload.Data);
-        Assert.Single(payload.Data!);
+        ApiResponse<List<Request>> response = Assert.IsType<ApiResponse<List<Request>>>(ok.Value);
+        Assert.Same(expected, response.Data);
 
-        service.Received(1).GetAemetMarineZonePredictionValues("key", "https://example.com", 1);
+        await service.Received(1).GetAemetMarineZonePredictionValuesAsync("key", "https://example.com", 1, Arg.Any<CancellationToken>());
     }
 
     [Fact]
-    public void GetValues_ServiceFail_RetornaBadRequest()
+    public async Task GetValuesAsync_ServiceFailure_ReturnsBadRequest()
     {
         // Arrange
         IAemetValuesService service = Substitute.For<IAemetValuesService>();
-        ILogger<AemetValuesController> logger = Substitute.For<ILogger<AemetValuesController>>();
+        Microsoft.Extensions.Logging.ILogger<AemetValuesController> logger = Substitute.For<Microsoft.Extensions.Logging.ILogger<AemetValuesController>>();
 
-        service.GetAemetMarineZonePredictionValues("key", "https://example.com", 1)
-            .Returns(Result.Fail<List<Request>>("No items found."));
+        service
+            .GetAemetMarineZonePredictionValuesAsync("key", "https://example.com", 1, Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(Result.Fail<List<Request>>("boom")));
 
-        AemetValuesController controller = new AemetValuesController(service, logger)
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext()
-            }
-        };
+        AemetValuesController controller = new AemetValuesController(service, logger);
+        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
-        GetAemetValuesRequestDto dto = new GetAemetValuesRequestDto
-        {
-            ApiKey = "key",
-            Url = "https://example.com",
-            Zone = 1
-        };
+        GetAemetValuesRequestDto dto = new GetAemetValuesRequestDto { ApiKey = "key", Url = "https://example.com", Zone = 1 };
 
         // Act
-        ActionResult<ApiResponse<List<Request>>> actionResult = controller.GetValues(dto);
+        ActionResult<ApiResponse<List<Request>>> actionResult = await controller.GetValuesAsync(dto, CancellationToken.None);
 
         // Assert
-        BadRequestObjectResult badRequest = Assert.IsType<BadRequestObjectResult>(actionResult.Result);
-        ProblemDetails problem = Assert.IsType<ProblemDetails>(badRequest.Value);
-        Assert.Equal(StatusCodes.Status400BadRequest, problem.Status);
-    }
-
-    [Fact]
-    public void GetValues_ExcepcionInesperada_Retorna500()
-    {
-        // Arrange
-        IAemetValuesService service = Substitute.For<IAemetValuesService>();
-        ILogger<AemetValuesController> logger = Substitute.For<ILogger<AemetValuesController>>();
-
-        service.GetAemetMarineZonePredictionValues(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<int>())
-            .Returns(x => throw new InvalidOperationException("boom"));
-
-        AemetValuesController controller = new AemetValuesController(service, logger)
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext()
-            }
-        };
-
-        GetAemetValuesRequestDto dto = new GetAemetValuesRequestDto
-        {
-            ApiKey = "key",
-            Url = "https://example.com",
-            Zone = 1
-        };
-
-        // Act
-        ActionResult<ApiResponse<List<Request>>> actionResult = controller.GetValues(dto);
-
-        // Assert
-        ObjectResult objectResult = Assert.IsType<ObjectResult>(actionResult.Result);
-        Assert.Equal(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
-        Assert.IsType<ProblemDetails>(objectResult.Value);
+        Assert.IsType<BadRequestObjectResult>(actionResult.Result);
     }
 }

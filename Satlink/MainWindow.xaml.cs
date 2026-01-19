@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Extensions.Options;
-using Satlink.Logic;
+
+using Satlink.ApiClient;
 
 namespace Satlink
 {
@@ -12,11 +13,11 @@ namespace Satlink
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow(IAemetValuesService aemetValuesService, IOptions<ApplicationSettings> appConfig)
+        public MainWindow(IAemetValuesProvider aemetValuesProvider, IOptions<ApplicationSettings> appConfig)
         {
             InitializeComponent();
 
-            MarineZonePredictionViewModel VM = new MarineZonePredictionViewModel(aemetValuesService, appConfig);
+            MarineZonePredictionViewModel VM = new MarineZonePredictionViewModel(aemetValuesProvider, appConfig);
             this.DataContext = VM;
 
             string version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();

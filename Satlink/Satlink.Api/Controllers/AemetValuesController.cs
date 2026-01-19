@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +9,7 @@ using Microsoft.Extensions.Logging;
 
 using Satlink.Api.Contracts;
 using Satlink.Api.Dtos.Aemet;
+using Satlink.Domain.Models;
 using Satlink.Logic;
 
 namespace Satlink.Api.Controllers;
@@ -35,28 +39,27 @@ public sealed class AemetValuesController : ControllerBase
     /// Gets AEMET marine zone prediction values.
     /// </summary>
     /// <param name="request">The request payload.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The retrieved items.</returns>
     /// <response code="200">Returns the items.</response>
     /// <response code="400">If the request is invalid.</response>
     /// <response code="500">If an unexpected error occurs.</response>
     [HttpPost("values")]
-    [ProducesResponseType(typeof(ApiResponse<System.Collections.Generic.List<Satlink.Domain.Models.Request>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<List<Request>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public ActionResult<ApiResponse<System.Collections.Generic.List<Satlink.Domain.Models.Request>>> GetValues([FromBody] GetAemetValuesRequestDto request)
+    public async Task<ActionResult<ApiResponse<List<Request>>>> GetValuesAsync([FromBody] GetAemetValuesRequestDto request, CancellationToken cancellationToken)
     {
-        // Log request metadata.
         _logger.LogInformation("Getting AEMET values for zone {Zone} from {Url}", request.Zone, request.Url);
 
         try
         {
-            // Delegate to Logic service.
-            Result<System.Collections.Generic.List<Satlink.Domain.Models.Request>> result = _aemetValuesService.GetAemetMarineZonePredictionValues(
+            Result<List<Request>> result = await _aemetValuesService.GetAemetMarineZonePredictionValuesAsync(
                 request.ApiKey,
                 request.Url,
-                request.Zone);
+                request.Zone,
+                cancellationToken);
 
-            // Map domain result to HTTP response.
             if (result.IsFailure)
             {
                 _logger.LogWarning("AEMET values retrieval failed: {Error}", result.Error);
@@ -69,12 +72,10 @@ public sealed class AemetValuesController : ControllerBase
                 return BadRequest(problem);
             }
 
-            ApiResponse<System.Collections.Generic.List<Satlink.Domain.Models.Request>> response = ApiResponse<System.Collections.Generic.List<Satlink.Domain.Models.Request>>.Ok(result.Value);
-            return Ok(response);
+            return Ok(ApiResponse<List<Request>>.Ok(result.Value));
         }
         catch (Exception ex)
         {
-            // Log unexpected exceptions with structured logging.
             _logger.LogError(ex, "Unexpected error while getting AEMET values for zone {Zone}", request.Zone);
 
             ProblemDetails problem = HttpContext.CreateProblemDetails(

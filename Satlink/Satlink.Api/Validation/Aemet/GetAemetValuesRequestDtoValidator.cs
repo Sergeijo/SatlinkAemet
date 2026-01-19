@@ -23,7 +23,7 @@ public sealed class GetAemetValuesRequestDtoValidator : AbstractValidator<GetAem
             .WithMessage("Url must be a valid absolute URL.");
 
         RuleFor(x => x.Zone)
-            .GreaterThan(0);
+            .GreaterThanOrEqualTo(0);
     }
 
     private static bool BeValidAbsoluteUrl(string url)

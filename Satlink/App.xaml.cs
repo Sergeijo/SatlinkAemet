@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;
@@ -6,8 +6,7 @@ using System.Text;
 using System.Windows;
 using Microsoft.Extensions.Options;
 
-using Satlink.Infrastructure.DI;
-using Satlink.Logic.DI;
+using Satlink.ApiClient;
 
 namespace Satlink
 {
@@ -37,8 +36,19 @@ namespace Satlink
 
         private void ConfigureServices(IServiceCollection serviceCollection)
         {
-            serviceCollection.RegisterInfrastructureDependencies(Configuration);
-            serviceCollection.RegisterLogicDependencies();
+            string? baseUrl = Configuration["SatlinkApi:BaseUrl"];
+
+            if (string.IsNullOrWhiteSpace(baseUrl))
+            {
+                baseUrl = "http://localhost:5273/";
+            }
+
+            serviceCollection.AddHttpClient<IAemetValuesApiClient, AemetValuesApiClient>(client =>
+            {
+                client.BaseAddress = new Uri(baseUrl, UriKind.Absolute);
+            });
+
+            serviceCollection.AddScoped<IAemetValuesProvider, AemetValuesProvider>();
 
             var appSettings = new ApplicationSettings
             {

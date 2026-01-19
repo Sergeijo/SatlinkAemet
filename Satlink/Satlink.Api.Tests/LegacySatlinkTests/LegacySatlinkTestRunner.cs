@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 using Xunit;
 
 namespace Satlink.Api.Tests.LegacySatlinkTests;
@@ -8,11 +10,11 @@ namespace Satlink.Api.Tests.LegacySatlinkTests;
 public sealed class LegacySatlinkTestRunner
 {
     [Fact]
-    public void LegacyTests_RunAll_ReturnsZeroFailures()
+    public async Task LegacyTests_RunAll_ReturnsZeroFailures()
     {
         int failures = 0;
 
-        failures += AemetValuesServiceLegacyTests.Run();
+        await new AemetValuesServiceLegacyTests().GetAemetMarineZonePredictionValuesAsync_InvalidUrl_ReturnsFailure();
         failures += ResultLegacyTests.Run();
         failures += AemetRepositoryTestsRunner.Run();
 

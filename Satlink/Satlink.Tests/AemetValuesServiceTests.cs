@@ -20,7 +20,10 @@ namespace Satlink.Tests
                 DummyRepository mockRepo = new DummyRepository();
                 AemetValuesService service = new AemetValuesService(mockRepo);
 
-                Result result = service.GetAemetMarineZonePredictionValues("key", "http://not_a_valid_url_for_test", 1);
+                Result result = service.GetAemetMarineZonePredictionValuesAsync("key", "http://not_a_valid_url_for_test", 1)
+                    .GetAwaiter()
+                    .GetResult();
+
                 if (!result.IsFailure)
                 {
                     failures++;
