@@ -21,9 +21,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\\..\\Satlink.Logic\\Satink.Logic.csproj" />
-    <ProjectReference Include="..\\..\\Satlink.Infrastructure\\Satlink.Infrastructure.csproj" />
-    <ProjectReference Include="..\\..\\Satlink.Domain\\Satlink.Domain.csproj" />
+    <ProjectReference Include="..\Satlink.Logic\Satink.Logic.csproj" />
+    <ProjectReference Include="..\Satlink.Infrastructure\Satlink.Infrastructure.csproj" />
+    <ProjectReference Include="..\Satlink.Domain\Satlink.Domain.csproj" />
   </ItemGroup>
 
 </Project>

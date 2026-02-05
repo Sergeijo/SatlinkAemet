@@ -32,8 +32,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="Satlink.Api\Satlink.Api.csproj" />
     <ProjectReference Include="..\Satlink.Domain\Satlink.Domain.csproj" />
+    <ProjectReference Include="..\Satlink.Api\Satlink.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>
