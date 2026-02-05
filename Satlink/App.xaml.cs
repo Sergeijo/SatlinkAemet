@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Text;
@@ -42,6 +43,11 @@ namespace Satlink
             {
                 baseUrl = "http://localhost:5273/";
             }
+
+            serviceCollection.AddLogging(config =>
+            {
+                config.AddConsole();
+            });
 
             serviceCollection.AddHttpClient<IAemetValuesApiClient, AemetValuesApiClient>(client =>
             {

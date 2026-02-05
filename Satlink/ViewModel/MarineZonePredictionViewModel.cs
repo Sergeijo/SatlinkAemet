@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -16,7 +17,7 @@ namespace Satlink
     {
         private readonly IAemetValuesProvider _aemetValuesProvider;
 
-        private ObservableCollection<MarineZonePrediction> _ZonePredictionsList;
+        private ObservableCollection<MarineZonePrediction> _ZonePredictionsList = new ObservableCollection<MarineZonePrediction>();
 
         private readonly IOptions<ApplicationSettings> configuration;
 
@@ -58,7 +59,7 @@ namespace Satlink
                 try
                 {
                     _zone = value;
-                    RaisePropertyChanged("Zone");
+                    RaisePropertyChanged(nameof(Zone));
                 }
                 catch (Exception ex)
                 {
@@ -87,7 +88,7 @@ namespace Satlink
                 try
                 {
                     _columnCollection = value;
-                    RaisePropertyChanged("ColumnCollection");
+                    RaisePropertyChanged(nameof(ColumnCollection));
                 }
                 catch (Exception ex)
                 {
@@ -114,7 +115,7 @@ namespace Satlink
         {
             get
             {
-                return new RelayCommand(DownloadPredictions, CanDownloadPredictions);
+                return new AsyncRelayCommand(DownloadPredictionsAsync, CanDownloadPredictions);
             }
         }
 
@@ -128,47 +129,61 @@ namespace Satlink
         }
 
         /// <summary>
-        ///  
+        ///  Async download of predictions
         /// </summary>
-        /// <returns></returns>
-        internal void DownloadPredictions()
+        internal async Task DownloadPredictionsAsync()
         {
             try
             {
                 _ZonePredictionsList = new ObservableCollection<MarineZonePrediction>();
 
-                AemetValuesResult result = _aemetValuesProvider.GetAemetMarineZonePredictionValues(configuration.Value?.api_key, configuration.Value?.url, Zone);
+                AemetValuesResult result = await _aemetValuesProvider.GetAemetMarineZonePredictionValuesAsync(configuration.Value?.api_key, configuration.Value?.url, Zone).ConfigureAwait(true);
 
                 if (result.Success)
                 {
-                    result.Value?.FirstOrDefault().prediccion.zona.ForEach(zona => _ZonePredictionsList.Add(new MarineZonePrediction()
+                    var first = result.Value?.FirstOrDefault();
+                    if (first?.prediccion?.zona != null)
                     {
-                        Id = zona.id,
-                        Texto = zona.texto,
-                        Nombre = zona.nombre
-                    }));
-
-                    this.ColumnCollection = new ObservableCollection<DataGridColumn>();
-
-                    foreach (var column in _ZonePredictionsList[0].GetMyProperties())
-                    {
-                        ColumnCollection.Add(new DataGridTextColumn()
+                        foreach (var zona in first.prediccion.zona)
                         {
-                            Header = column,
-                            Binding = new System.Windows.Data.Binding(column)
+                            _ZonePredictionsList.Add(new MarineZonePrediction()
                             {
-                                Mode = System.Windows.Data.BindingMode.TwoWay,
-                                ValidatesOnExceptions = true,
-                                UpdateSourceTrigger = System.Windows.Data.UpdateSourceTrigger.LostFocus,
-                                NotifyOnTargetUpdated = true
-                            },
-                            //Width = 80,
-                            IsReadOnly = true
-                        });
-                    }
+                                Id = zona.id,
+                                Texto = zona.texto,
+                                Nombre = zona.nombre
+                            });
+                        }
 
-                    RaisePropertyChanged("ColumnCollection");
-                    RaisePropertyChanged("ZonePredictions");
+                        this.ColumnCollection = new ObservableCollection<DataGridColumn>();
+
+                        if (_ZonePredictionsList.Count > 0)
+                        {
+                            foreach (var column in _ZonePredictionsList[0].GetMyProperties())
+                            {
+                                ColumnCollection.Add(new DataGridTextColumn()
+                                {
+                                    Header = column,
+                                    Binding = new System.Windows.Data.Binding(column)
+                                    {
+                                        Mode = System.Windows.Data.BindingMode.TwoWay,
+                                        ValidatesOnExceptions = true,
+                                        UpdateSourceTrigger = System.Windows.Data.UpdateSourceTrigger.LostFocus,
+                                        NotifyOnTargetUpdated = true
+                                    },
+                                    //Width = 80,
+                                    IsReadOnly = true
+                                });
+                            }
+                        }
+
+                        RaisePropertyChanged(nameof(ColumnCollection));
+                        RaisePropertyChanged(nameof(ZonePredictions));
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Se ha producido un error al intentar descargar los datos de la Api de Aemet: No items returned", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
+                        Log.WriteLog($"[MarineZonePredictionViewModel] - [DownloadPredictions] : No items returned");
+                    }
                 }
                 else
                 {

@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using Satlink.Api.Dtos.Aemet;
+using Microsoft.Extensions.Logging;
+
+using Satlink.Contracts.Dtos.Aemet;
 using Satlink.Domain.Models;
 
 namespace Satlink.ApiClient;
@@ -13,19 +15,27 @@ namespace Satlink.ApiClient;
 public sealed class AemetValuesProvider : IAemetValuesProvider
 {
     private readonly IAemetValuesApiClient _apiClient;
+    private readonly ILogger<AemetValuesProvider> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AemetValuesProvider"/> class.
     /// </summary>
     /// <param name="apiClient">The API client.</param>
-    public AemetValuesProvider(IAemetValuesApiClient apiClient)
+    /// <param name="logger">The logger.</param>
+    public AemetValuesProvider(IAemetValuesApiClient apiClient, ILogger<AemetValuesProvider> logger)
     {
-        _apiClient = apiClient;
+        _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     /// <inheritdoc />
-    public AemetValuesResult GetAemetMarineZonePredictionValues(string apiKey, string url, int zone)
+    public async Task<AemetValuesResult> GetAemetMarineZonePredictionValuesAsync(string apiKey, string url, int zone)
     {
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            return AemetValuesResult.Fail("Invalid url.");
+        }
+
         try
         {
             GetAemetValuesRequestDto request = new GetAemetValuesRequestDto
@@ -35,14 +45,14 @@ public sealed class AemetValuesProvider : IAemetValuesProvider
                 Zone = zone
             };
 
-            Task<List<Request>> task = _apiClient.GetValuesAsync(request);
-            List<Request> items = task.GetAwaiter().GetResult();
+            List<Request> items = await _apiClient.GetValuesAsync(request).ConfigureAwait(false);
 
             return AemetValuesResult.Ok(items);
         }
         catch (Exception ex)
         {
-            return AemetValuesResult.Fail(ex.Message);
+            _logger.LogError(ex, "Error while retrieving AEMET values for zone {Zone} from {Url}", zone, url);
+            return AemetValuesResult.Fail("Error while retrieving AEMET values.");
         }
     }
 }

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Satlink.Api.Dtos.Aemet;
+using Satlink.Contracts.Dtos.Aemet;
 using Satlink.Domain.Models;
 
 namespace Satlink.ApiClient;

@@ -1,6 +1,6 @@
 using FluentValidation;
 
-using Satlink.Api.Dtos.Aemet;
+using Satlink.Contracts.Dtos.Aemet;
 
 namespace Satlink.Api.Validation.Aemet;
 

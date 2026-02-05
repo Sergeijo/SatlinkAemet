@@ -6,11 +6,11 @@ namespace Satlink.ApiClient;
 public interface IAemetValuesProvider
 {
     /// <summary>
-    /// Gets marine zone prediction values.
+    /// Gets marine zone prediction values asynchronously.
     /// </summary>
     /// <param name="apiKey">The api key.</param>
     /// <param name="url">The base url.</param>
     /// <param name="zone">The zone identifier.</param>
     /// <returns>The retrieval result.</returns>
-    AemetValuesResult GetAemetMarineZonePredictionValues(string apiKey, string url, int zone);
+    System.Threading.Tasks.Task<AemetValuesResult> GetAemetMarineZonePredictionValuesAsync(string apiKey, string url, int zone);
 }

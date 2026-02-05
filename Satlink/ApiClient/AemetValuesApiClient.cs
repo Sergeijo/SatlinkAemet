@@ -5,8 +5,8 @@ using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Satlink.Contracts.Dtos.Aemet;
 using Satlink.Api.Contracts;
-using Satlink.Api.Dtos.Aemet;
 using Satlink.Domain.Models;
 
 namespace Satlink.ApiClient;

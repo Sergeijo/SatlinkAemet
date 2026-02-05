@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -21,9 +21,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Satlink.Logic\Satink.Logic.csproj" />
-    <ProjectReference Include="..\Satlink.Infrastructure\Satlink.Infrastructure.csproj" />
-    <ProjectReference Include="..\Satlink.Domain\Satlink.Domain.csproj" />
+    <ProjectReference Include="..\\Satlink.Logic\\Satink.Logic.csproj" />
+    <ProjectReference Include="..\\Satlink.Infrastructure\\Satlink.Infrastructure.csproj" />
+    <ProjectReference Include="..\\Satlink.Domain\\Satlink.Domain.csproj" />
+    <ProjectReference Include="..\\Satlink.Contracts\\Satlink.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Dtos\Aemet\" />
   </ItemGroup>
 
 </Project>

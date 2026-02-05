@@ -10,7 +10,7 @@ using NSubstitute;
 
 using Satlink.Api.Controllers;
 using Satlink.Api.Contracts;
-using Satlink.Api.Dtos.Aemet;
+using Satlink.Contracts.Dtos.Aemet;
 using Satlink.Domain.Models;
 using Satlink.Logic;
 

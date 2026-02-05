@@ -1,4 +1,4 @@
-namespace Satlink.Api.Dtos.Aemet;
+namespace Satlink.Contracts.Dtos.Aemet;
 
 /// <summary>
 /// Represents the request to retrieve AEMET marine zone prediction values.
