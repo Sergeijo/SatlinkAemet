@@ -1,4 +1,5 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.0.11222.15
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -15,6 +16,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Satlink.Api", "Satlink.Api\Satlink.Api.csproj", "{870702C1-E9F6-8583-5436-B99BA329DA94}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Satlink.Api.Tests", "Satlink.Api.Tests\Satlink.Api.Tests.csproj", "{995269A7-203C-77D2-0D1D-175ADFAE235D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Satlink.Contracts", "Satlink.Contracts\Satlink.Contracts.csproj", "{19251088-A2EA-C6CE-358D-A171A65DFE1B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -110,6 +113,18 @@ Global
 		{995269A7-203C-77D2-0D1D-175ADFAE235D}.Release|x64.Build.0 = Release|Any CPU
 		{995269A7-203C-77D2-0D1D-175ADFAE235D}.Release|x86.ActiveCfg = Release|Any CPU
 		{995269A7-203C-77D2-0D1D-175ADFAE235D}.Release|x86.Build.0 = Release|Any CPU
+		{19251088-A2EA-C6CE-358D-A171A65DFE1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19251088-A2EA-C6CE-358D-A171A65DFE1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19251088-A2EA-C6CE-358D-A171A65DFE1B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{19251088-A2EA-C6CE-358D-A171A65DFE1B}.Debug|x64.Build.0 = Debug|Any CPU
+		{19251088-A2EA-C6CE-358D-A171A65DFE1B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{19251088-A2EA-C6CE-358D-A171A65DFE1B}.Debug|x86.Build.0 = Debug|Any CPU
+		{19251088-A2EA-C6CE-358D-A171A65DFE1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19251088-A2EA-C6CE-358D-A171A65DFE1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19251088-A2EA-C6CE-358D-A171A65DFE1B}.Release|x64.ActiveCfg = Release|Any CPU
+		{19251088-A2EA-C6CE-358D-A171A65DFE1B}.Release|x64.Build.0 = Release|Any CPU
+		{19251088-A2EA-C6CE-358D-A171A65DFE1B}.Release|x86.ActiveCfg = Release|Any CPU
+		{19251088-A2EA-C6CE-358D-A171A65DFE1B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
