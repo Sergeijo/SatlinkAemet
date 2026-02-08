@@ -14,6 +14,8 @@ using Satlink.Logic.DI;
 
 var builder = WebApplication.CreateBuilder(args);
 
+const string CorsPolicyName = "AngularDev";
+
 // Add services to the container.
 builder.Services.AddControllers()
 .ConfigureApiBehaviorOptions(options =>
@@ -34,6 +36,26 @@ builder.Services.AddControllers()
 });
 
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(CorsPolicyName, policy =>
+    {
+        policy
+            .SetIsOriginAllowed(origin =>
+            {
+                if (string.IsNullOrWhiteSpace(origin))
+                {
+                    return false;
+                }
+
+                return Uri.TryCreate(origin, UriKind.Absolute, out Uri? uri)
+                    && uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase);
+            })
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 // Swagger/OpenAPI (Swashbuckle)
 builder.Services.AddSwaggerGen();
@@ -75,6 +97,8 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();
+
+app.UseCors(CorsPolicyName);
 
 app.UseSwagger();
 app.UseSwaggerUI();
