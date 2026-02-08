@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Satlink.Domain.Models;
 
@@ -15,7 +17,8 @@ namespace Satlink.Logic
         /// <param name="apiKey">The api key.</param>
         /// <param name="url">The base url.</param>
         /// <param name="zone">The zone identifier.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The retrieved prediction items.</returns>
-        Result<List<Request>> GetAemetMarineZonePredictionValues(string apiKey, string url, int zone);
+        Task<Result<List<Request>>> GetAemetMarineZonePredictionValuesAsync(string apiKey, string url, int zone, CancellationToken cancellationToken = default);
     }
 }
