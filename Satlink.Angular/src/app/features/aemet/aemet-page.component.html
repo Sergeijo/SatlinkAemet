@@ -1,0 +1,79 @@
+<section class="page">
+  <div class="card">
+    <div class="toolbar">
+      <div class="field">
+        <label class="label" for="zone">Zona</label>
+        <p-select
+          inputId="zone"
+          [options]="zones"
+          optionLabel="value"
+          optionValue="key"
+          [ngModel]="selectedZone()"
+          (ngModelChange)="selectedZone.set($event)"
+          [style]="{ width: '420px' }"
+          appendTo="body"
+        />
+      </div>
+
+      <div class="actions">
+        <p-button
+          label="Descargar Datos"
+          icon="pi pi-download"
+          severity="primary"
+          (onClick)="download()"
+          [disabled]="!canDownload()"
+        />
+
+        <p-button
+          label="Descargar JSON"
+          icon="pi pi-file"
+          severity="secondary"
+          (onClick)="downloadJsonFile()"
+          [disabled]="items().length === 0"
+        />
+      </div>
+    </div>
+
+    <p-message *ngIf="error()" severity="error" [text]="error()!" />
+
+    <div class="loading" *ngIf="isLoading()">
+      <p-progressSpinner ariaLabel="Loading" />
+    </div>
+
+    <p-table
+      [value]="items()"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="{first}–{last} de {totalRecords}"
+      [tableStyle]="{ 'min-width': '42rem' }"
+      [stripedRows]="true"
+      [scrollable]="true"
+      scrollHeight="500px"
+      dataKey="id"
+      [paginatorDropdownAppendTo]="'body'"
+      *ngIf="items().length > 0"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 6rem" pFrozenColumn>Id</th>
+          <th style="width: 18rem">Nombre</th>
+          <th>Texto</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-row>
+        <tr>
+          <td pFrozenColumn>{{ row.id }}</td>
+          <td>{{ row.nombre }}</td>
+          <td class="texto">{{ row.texto }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <p class="hint" *ngIf="!isLoading() && items().length === 0 && !error()">
+      Pulsa "Descargar Datos" para cargar la predicción.
+    </p>
+  </div>
+</section>
