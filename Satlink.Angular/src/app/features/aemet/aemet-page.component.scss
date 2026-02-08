@@ -1,0 +1,140 @@
+.page {
+  padding: 0 24px 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.06),
+    0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+.card::before {
+  content: "";
+  display: block;
+  height: 5px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 50%, #93c5fd 100%);
+  margin: -28px -28px 20px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 280px;
+}
+
+.label {
+  font-weight: 600;
+  color: #475569;
+  font-size: 14px;
+}
+
+.select {
+  min-width: 320px;
+  height: 34px;
+}
+
+.button {
+  height: 34px;
+  padding: 0 12px;
+  cursor: pointer;
+}
+
+.button.secondary {
+  background: #f6f6f6;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+}
+
+.error {
+  color: #a00000;
+  margin: 8px 0;
+}
+
+.hint {
+  color: #64748b;
+  margin-top: 20px;
+  text-align: center;
+  font-size: 15px;
+}
+
+.tableWrap {
+  overflow: auto;
+  max-height: calc(100vh - 140px);
+  border: 1px solid #ddd;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  vertical-align: top;
+}
+
+.texto {
+  white-space: pre-wrap;
+}
+
+:host ::ng-deep {
+  .p-button {
+    border-radius: 10px;
+    font-weight: 600;
+    padding: 10px 20px;
+  }
+
+  .p-select {
+    width: 100%;
+  }
+
+  .p-datatable {
+    margin-top: 16px;
+
+    .p-datatable-header {
+      background: #f8fafc;
+      font-weight: 600;
+    }
+
+    .p-datatable-tbody > tr {
+      &:hover {
+        background: #f1f5f9 !important;
+      }
+    }
+  }
+
+  .p-message {
+    margin-bottom: 16px;
+  }
+}
