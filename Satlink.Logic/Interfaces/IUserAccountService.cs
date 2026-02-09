@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 using Satlink.Domain.Models;
 
-namespace Satlink.Api.Services;
+namespace Satlink.Logic;
 
 /// <summary>
 /// Provides user account lookup operations for authentication.

@@ -11,8 +11,8 @@ using NSubstitute;
 using Satlink.Api.Controllers;
 using Satlink.Api.Contracts;
 using Satlink.Api.Dtos.Auth;
-using Satlink.Api.Services;
 using Satlink.Domain.Models;
+using Satlink.Logic;
 
 using Xunit;
 

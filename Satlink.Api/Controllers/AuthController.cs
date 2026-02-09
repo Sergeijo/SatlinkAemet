@@ -10,8 +10,8 @@ using Microsoft.Extensions.Logging;
 
 using Satlink.Api.Contracts;
 using Satlink.Api.Dtos.Auth;
-using Satlink.Api.Services;
 using Satlink.Domain.Models;
+using Satlink.Logic;
 
 namespace Satlink.Api.Controllers;
 
