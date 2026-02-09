@@ -1,69 +1,69 @@
 # Satlink.Api - Testing
 
-## Objetivo
+## Goal
 
-Los tests unitarios de `Satlink.Api` validan la lógica de orquestación de los controladores:
-- Mapeo de resultados a HTTP.
-- Manejo de errores.
-- Validaciones esperadas.
+The unit tests for `Satlink.Api` validate the controllers' orchestration logic:
+- Mapping results to HTTP.
+- Error handling.
+- Expected validations.
 
-## Tecnologías
+## Technologies
 
 - xUnit
 - NSubstitute
-- EF Core InMemory (para `AuthController`/`AemetDbContext`)
+- EF Core InMemory (for `AuthController`/`AemetDbContext`)
 
-## Proyecto de tests
+## Test project
 
 - `Satlink.Api.Tests`
 
-## Convenciones
+## Conventions
 
 - Arrange-Act-Assert.
-- Nombres descriptivos: `MetodoTesteado_Escenario_ResultadoEsperado`.
-- No usar servicios reales externos.
-- No incluir secretos.
+- Descriptive names: `MethodUnderTest_Scenario_ExpectedResult`.
+- Do not use real external services.
+- Do not include secrets.
 
-## Ejecutar tests (local/CI)
+## Running tests (local/CI)
 
 ### Visual Studio
-- Build solution.
+- Build the solution.
 - Test Explorer -> Run All.
 
 ### CLI
 
 ```bash
-# desde la raíz del repo/solution
-# (requiere restore NuGet habilitado)
+# from the repo/solution root
+# (requires NuGet restore to be enabled)
 dotnet test .\Satlink.Api.Tests\Satlink.Api.Tests.csproj -c Release
 ```
 
-## Qué se testea
+## What is tested
 
 ### `AuthController`
 - `LoginAsync`
-  - Happy path: credenciales válidas -> `200 OK` con tokens.
-  - Error: credenciales inválidas -> `401 Unauthorized`.
+  - Happy path: valid credentials -> `200 OK` with tokens.
+  - Error: invalid credentials -> `401 Unauthorized`.
 - `RefreshAsync`
-  - Happy path: refresh válido -> `200 OK`.
-  - Error: refresh inválido -> `401 Unauthorized`.
+  - Happy path: valid refresh -> `200 OK`.
+  - Error: invalid refresh -> `401 Unauthorized`.
 
 ### `AemetValuesController`
 - `GetValues`
   - Happy path -> `200 OK`.
   - Error: `Result.Fail` -> `400 Bad Request`.
-  - Error: excepción inesperada -> `500 Internal Server Error`.
+  - Error: unexpected exception -> `500 Internal Server Error`.
 
 ## Troubleshooting
 
-### Fallos de restore NuGet
-- Verifica conectividad a nuget.org.
-- Revisa `NuGet.config` y proxies.
-- Limpia caches:
+### NuGet restore failures
+- Verify connectivity to nuget.org.
+- Check `NuGet.config` and proxies.
+- Clear caches:
 
 ```bash
 dotnet nuget locals all --clear
 ```
 
 ### InMemory DB
-- Cada test usa un nombre de base de datos distinto (`Guid.NewGuid().ToString()`) para evitar contaminación entre tests.
+- Each test uses a different database name (`Guid.NewGuid().ToString()`) to avoid cross-test contamination.

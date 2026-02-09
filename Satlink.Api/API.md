@@ -1,13 +1,13 @@
 # Satlink.Api - API
 
-Este documento describe los endpoints expuestos por `Satlink.Api`.
+This document describes the endpoints exposed by `Satlink.Api`.
 
-## Convenciones de respuesta
+## Response conventions
 
-### Éxito
-- Respuesta: `ApiResponse<T>`
+### Success
+- Response: `ApiResponse<T>`
 
-Ejemplo:
+Example:
 - `200 OK`
 
 ```json
@@ -17,9 +17,9 @@ Ejemplo:
 ```
 
 ### Error (RFC 7807)
-- Respuesta: `ProblemDetails` / `ValidationProblemDetails`
+- Response: `ProblemDetails` / `ValidationProblemDetails`
 
-Ejemplo:
+Example:
 - `400 Bad Request`
 
 ```json
@@ -32,9 +32,9 @@ Ejemplo:
 }
 ```
 
-## Autenticación
+## Authentication
 
-- Esquema: `Bearer` (JWT)
+- Scheme: `Bearer` (JWT)
 - Header:
 
 ```
@@ -45,7 +45,7 @@ Authorization: Bearer <accessToken>
 
 ## POST /api/auth/login
 
-Autentica un usuario y retorna tokens.
+Authenticates a user and returns tokens.
 
 ### Request
 
@@ -83,7 +83,7 @@ Body: `LoginDto`
 
 ## POST /api/auth/refresh
 
-Renueva el access token usando un refresh token almacenado.
+Renews the access token using a stored refresh token.
 
 ### Request
 
@@ -103,11 +103,11 @@ Body: `RefreshRequestDto`
 
 ### Notes
 
-- Si el refresh token está revocado/expirado/no existe -> `401 Unauthorized`.
+- If the refresh token is revoked/expired/missing -> `401 Unauthorized`.
 
 ## POST /api/aemetvalues/values
 
-Obtiene predicciones AEMET para una zona.
+Gets AEMET forecasts for a zone.
 
 ### Request
 
@@ -124,7 +124,7 @@ Body: `GetAemetValuesRequestDto`
 ### Responses
 
 - `200 OK` -> `ApiResponse<List<Request>>`
-- `400 Bad Request` -> `ProblemDetails` (incluye fallos de servicio o validación)
+- `400 Bad Request` -> `ProblemDetails` (includes service failures or validation errors)
 - `500 Internal Server Error` -> `ProblemDetails`
 
 ### Response (200)
@@ -145,11 +145,11 @@ Body: `GetAemetValuesRequestDto`
 
 ## Requests (CRUD)
 
-> Nota: el modelo actual `Request` usa `string id` en `Satlink.Domain`. Los endpoints CRUD enrutan por `{id:int}` y el acceso actual compara `id.ToString()`. Se recomienda normalizar el id a `int` o `Guid` en el dominio para coherencia completa.
+> Note: the current `Request` model uses `string id` in `Satlink.Domain`. The CRUD endpoints route using `{id:int}` and the current access compares `id.ToString()`. Consider normalizing the id to `int` or `Guid` in the domain for full consistency.
 
 ## GET /api/requests
 
-Retorna la lista completa de `Request`.
+Returns the full list of `Request`.
 
 ### Responses
 
@@ -158,7 +158,7 @@ Retorna la lista completa de `Request`.
 
 ## GET /api/requests/{id}
 
-Retorna un `Request` por id.
+Returns a `Request` by id.
 
 ### Responses
 
@@ -168,7 +168,7 @@ Retorna un `Request` por id.
 
 ## POST /api/requests
 
-Crea un `Request`.
+Creates a `Request`.
 
 ### Request
 
@@ -188,7 +188,7 @@ Body: `CreateRequestDto`
 
 ## PUT /api/requests/{id}
 
-Actualiza un `Request`.
+Updates a `Request`.
 
 ### Request
 
@@ -209,7 +209,7 @@ Body: `UpdateRequestDto`
 
 ## DELETE /api/requests/{id}
 
-Elimina un `Request`.
+Deletes a `Request`.
 
 ### Responses
 
@@ -217,10 +217,10 @@ Elimina un `Request`.
 - `404 Not Found` -> `ProblemDetails`
 - `500 Internal Server Error` -> `ProblemDetails`
 
-## Códigos de estado comunes
+## Common status codes
 
-- `400` Validación / petición inválida
-- `401` No autenticado / credenciales inválidas
-- `403` Autenticado pero sin permisos
-- `404` Recurso no encontrado (cuando el controlador lo implemente)
-- `500` Error inesperado
+- `400` Validation / invalid request
+- `401` Not authenticated / invalid credentials
+- `403` Authenticated but not authorized
+- `404` Resource not found (when implemented by the controller)
+- `500` Unexpected error

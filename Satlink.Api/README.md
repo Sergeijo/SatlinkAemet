@@ -1,47 +1,47 @@
 # Satlink.Api
 
-API REST en **.NET 10** para exponer los servicios del proyecto `Satlink.Logic` y funcionalidades transversales (autenticación JWT, validación, paginación).
+REST API in **.NET 10** to expose the services from `Satlink.Logic` and cross-cutting features (JWT authentication, validation, pagination).
 
-## Objetivos
+## Goals
 
-- Actuar como capa **Presentation**:
-  - Orquesta peticiones HTTP hacia `Satlink.Logic`.
-  - No contiene lógica de negocio.
-  - Respuestas uniformes con `ApiResponse<T>` y errores RFC 7807 (`ProblemDetails`).
-- Exponer endpoints autenticados mediante JWT (`/api/auth/login`, `/api/auth/refresh`).
+- Act as the **Presentation** layer:
+  - Orchestrates HTTP requests into `Satlink.Logic`.
+  - Contains no business logic.
+  - Uniform responses via `ApiResponse<T>` and RFC 7807 errors (`ProblemDetails`).
+- Expose JWT-protected endpoints (`/api/auth/login`, `/api/auth/refresh`).
 
-## Arquitectura (alto nivel)
+## Architecture (high level)
 
 - `Satlink.Api` (Presentation)
-  - Controladores (`ControllerBase`) con attribute routing.
-  - DTOs + FluentValidation para validación de entrada.
-  - Logging estructurado con `ILogger`.
-  - Swagger/OpenAPI con esquema Bearer.
+  - Controllers (`ControllerBase`) with attribute routing.
+  - DTOs + FluentValidation for input validation.
+  - Structured logging with `ILogger`.
+  - Swagger/OpenAPI with Bearer scheme.
 
 - `Satlink.Logic` (Application)
-  - Servicios `*Service` consumidos desde la API.
+  - `*Service` services consumed by the API.
 
 - `Satlink.Infrastructure` (Data)
   - EF Core `AemetDbContext`.
-  - Repositorios.
+  - Repositories.
 
 - `Satlink.Domain` (Domain)
-  - Entidades de dominio.
+  - Domain entities.
 
-## Convenciones del proyecto
+## Project conventions
 
-Las reglas maestras están en:
+The master rules are in:
 - `.github/instructions/rules.instructions.md`
 
-Resumen:
-- Interfaces con prefijo `I`.
-- Servicios con sufijo `Service`.
-- Métodos `async` con sufijo `Async`.
-- Allman style (llaves en nueva línea).
-- `ILogger` para logging (no `Console.WriteLine`).
-- XML docs en métodos públicos.
+Summary:
+- Interfaces are prefixed with `I`.
+- Services are suffixed with `Service`.
+- `async` methods are suffixed with `Async`.
+- Allman style (braces on a new line).
+- Use `ILogger` for logging (no `Console.WriteLine`).
+- XML docs on public methods.
 
-## Endpoints disponibles
+## Available endpoints
 
 ### Auth
 - `POST /api/auth/login`
@@ -57,34 +57,34 @@ Resumen:
 - `PUT /api/requests/{id}`
 - `DELETE /api/requests/{id}`
 
-## Desarrollo local
+## Local development
 
-### Requisitos
+### Requirements
 - .NET SDK 10
-- SQL Server / LocalDB (según `ConnectionStrings:SatlinkApp`)
+- SQL Server / LocalDB (depending on `ConnectionStrings:SatlinkApp`)
 
-### Configuración
+### Configuration
 
-Archivo: `Satlink.Api/appsettings.json`
+File: `Satlink.Api/appsettings.json`
 
 - `Jwt:Issuer`
 - `Jwt:Audience`
-- `Jwt:Key` (mínimo recomendado: 32 caracteres, gestionar por Secret Manager/CI)
+- `Jwt:Key` (recommended minimum: 32 characters; manage with Secret Manager/CI)
 - `ConnectionStrings:SatlinkApp`
 
-### Ejecutar
+### Run
 
-- Ejecutar `Satlink.Api` desde Visual Studio.
-- Navegar a `/swagger`.
+- Run `Satlink.Api` from Visual Studio.
+- Browse to `/swagger`.
 
 ## Troubleshooting
 
-### 401 Unauthorized al llamar endpoints protegidos
-- Verifica que envías header: `Authorization: Bearer <token>`.
-- Revisa que `Jwt:Issuer`, `Jwt:Audience` y `Jwt:Key` coinciden con los usados para generar el token.
+### 401 Unauthorized when calling protected endpoints
+- Make sure you send the header: `Authorization: Bearer <token>`.
+- Verify `Jwt:Issuer`, `Jwt:Audience` and `Jwt:Key` match the ones used to issue the token.
 
-### Refresh token inválido
-- El refresh token puede estar revocado, expirado o no existir en base de datos.
+### Invalid refresh token
+- The refresh token may be revoked, expired, or missing from the database.
 
-### Errores de validación de DTO (400)
-- La API devuelve `ValidationProblemDetails` (RFC 7807) con el detalle por campo.
+### DTO validation errors (400)
+- The API returns `ValidationProblemDetails` (RFC 7807) with field-level details.

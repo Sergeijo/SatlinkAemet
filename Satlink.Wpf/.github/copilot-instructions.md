@@ -1,29 +1,29 @@
 # Copilot instructions
 
-Sigue las reglas maestras definidas en `.github/instructions/rules.instructions.md`.
+Follow the master rules defined in `.github/instructions/rules.instructions.md`.
 
-## Estilo y convenciones
-- Allman style: llaves en nueva línea.
-- Interfaces con prefijo `I`.
-- Servicios con sufijo `Service`.
-- Métodos `async` con sufijo `Async`.
-- Campos privados `_camelCase`.
-- Evitar `var` salvo cuando el tipo sea obvio.
+## Style and conventions
+- Allman style: braces on a new line.
+- Interfaces are prefixed with `I`.
+- Services are suffixed with `Service`.
+- `async` methods are suffixed with `Async`.
+- Private fields use `_camelCase`.
+- Avoid `var` unless the type is obvious.
 
 ## API
-- No incluir lógica de negocio en controladores.
-- Respuestas con `Result<T>` o `ApiResponse<T>`.
-- Errores con RFC 7807 (`ProblemDetails`).
-- Logging estructurado con `ILogger`.
+- Do not include business logic in controllers.
+- Use `Result<T>` or `ApiResponse<T>` for responses.
+- Use RFC 7807 (`ProblemDetails`) for errors.
+- Use structured logging with `ILogger`.
 
-## Validación
-- Validaciones de entrada con FluentValidation.
+## Validation
+- Implement input validation with FluentValidation.
 
-## Documentación
-- XML docs obligatorios en métodos públicos.
-- Comentarios inline para pasos de lógica.
+## Documentation
+- XML docs are required for public methods.
+- Use inline comments for key logic steps.
 
 ## Testing
 - xUnit + NSubstitute.
 - Arrange-Act-Assert.
-- Nombres de tests: `MetodoTesteado_Escenario_ResultadoEsperado`.
+- Test names: `MethodUnderTest_Scenario_ExpectedResult`.

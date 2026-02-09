@@ -1,32 +1,33 @@
 # SatlinkAemet
 
-Solución para el **test técnico de Satlink** basada en una arquitectura por capas con:
+Solution for the **Satlink technical test** based on a layered architecture with:
 
-- Cliente **WPF (MVVM)**.
-- **API REST** en **.NET 10**.
-- Cliente **Angular**.
-- Capas de **Domain / Application (Logic) / Infrastructure / Contracts**.
-- Proyectos de **tests**.
+- **WPF (MVVM)** client.
+- **Angular** client.
+- **REST API** in **.NET 10**.
+- **Domain / Application (Logic) / Infrastructure / Contracts** layers.
+- **Test** projects.
 
-> Nota: este repositorio originalmente estaba en .NET 5; actualmente la solución está orientada a **.NET 10**.
+> Note: this repository originally targeted .NET 5; the solution is now aligned to **.NET 10**.
 
-## Estructura del repositorio
+## Repository structure
 
-- `Satlink.sln`: solución principal.
-- `Satlink.Wpf`: aplicación de escritorio WPF (patrón MVVM).
-- `Satlink.Api`: API REST (Swagger, JWT, validación, respuestas uniformes).
-- `Satlink.Angular`: front-end web (Angular).
-- `Satlink.Logic`: capa de aplicación (servicios `*Service` consumidos por la API/WPF).
-- `Satlink.Domain`: entidades y lógica de dominio.
-- `Satlink.Infrastructure`: acceso a datos (EF Core, `AemetDbContext`, repositorios).
-- `Satlink.Contracts`: contratos/DTOs compartidos entre capas.
-- `Satlink.Tests`: tests (lógica/WPF según corresponda).
-- `Satlink.Api.Tests`: tests de la API.
+- `Satlink.sln`: main solution.
+- `Satlink.Wpf`: WPF desktop app (MVVM pattern).
+- `Satlink.Angular`: web front-end (Angular).
+- `Satlink.Api`: REST API (Swagger, JWT, validation, uniform responses).
+- `Satlink.Logic`: application layer (the `*Service` services consumed by API/WPF).
+- `Satlink.Domain`: domain entities and domain logic.
+- `Satlink.Infrastructure`: data access (EF Core, `AemetDbContext`, repositories).
+- `Satlink.Contracts`: shared contracts/DTOs between layers.
+- `Satlink.Tests`: tests (logic/WPF as applicable).
+- `Satlink.Api.Tests`: API tests.
 
-## Arquitectura (alto nivel)
+## Architecture (high level)
 
 - Presentation:
   - `Satlink.Wpf`
+  - `Satlink.Angular`
   - `Satlink.Api`
 - Application:
   - `Satlink.Logic`
@@ -37,43 +38,43 @@ Solución para el **test técnico de Satlink** basada en una arquitectura por capa
 - Shared contracts:
   - `Satlink.Contracts`
 
-## Requisitos
+## Requirements
 
 - .NET SDK **10**
-- (Para `Satlink.Wpf`) Windows con `Microsoft.WindowsDesktop.App`
-- (Para `Satlink.Api`) SQL Server / LocalDB según `ConnectionStrings:SatlinkApp`
-- (Para `Satlink.Angular`) Node.js + npm
+- (For `Satlink.Wpf`) Windows with `Microsoft.WindowsDesktop.App`
+- (For `Satlink.Api`) SQL Server / LocalDB depending on `ConnectionStrings:SatlinkApp`
+- (For `Satlink.Angular`) Node.js + npm
 
-## Cómo ejecutar
+## How to run
 
 ### Visual Studio
 
-1. Abrir `Satlink.sln`.
-2. Seleccionar proyecto de inicio:
-   - `Satlink.Wpf` para escritorio.
-   - `Satlink.Api` para API.
-3. Compilar y ejecutar.
+1. Open `Satlink.sln`.
+2. Select the startup project:
+   - `Satlink.Wpf` for desktop.
+   - `Satlink.Api` for API.
+3. Build and run.
 
 ### CLI (.NET)
 
-- Compilar:
+- Build:
   - `dotnet build Satlink.sln`
 
-- Ejecutar API:
+- Run API:
   - `dotnet run --project Satlink.Api/Satlink.Api.csproj`
-  - Navegar a `https://localhost:<puerto>/swagger`
+  - Browse to `https://localhost:<port>/swagger`
 
-- Ejecutar WPF:
+- Run WPF:
   - `dotnet run --project Satlink.Wpf/Satlink.Wpf.csproj`
 
 ### Angular
 
-Desde `Satlink.Angular`:
+From `Satlink.Angular`:
 
 - `npm install`
-- `npm start` (o `ng serve`)
+- `npm start` (or `ng serve`)
 
-## Documentación específica
+## Additional documentation
 
-- API: ver `Satlink.Api/README.md`.
-- Convenciones del repositorio: `.github/instructions/rules.instructions.md`.
+- API: see `Satlink.Api/README.md`.
+- Repository conventions: `.github/instructions/rules.instructions.md`.

@@ -1,35 +1,35 @@
 # Satlink.Api - Architecture
 
-## Objetivo
+## Goal
 
-`Satlink.Api` implementa la capa **Presentation** de la solución:
-- Traduce HTTP/JSON a DTOs.
-- Valida entradas.
-- Orquesta llamadas a `Satlink.Logic`.
-- Devuelve respuestas uniformes (`ApiResponse<T>` y `ProblemDetails`).
+`Satlink.Api` implements the **Presentation** layer of the solution:
+- Translates HTTP/JSON into DTOs.
+- Validates input.
+- Orchestrates calls to `Satlink.Logic`.
+- Returns uniform responses (`ApiResponse<T>` and `ProblemDetails`).
 
-## Módulos
+## Modules
 
 - `Controllers/`
-  - Endpoints REST.
-  - Sin lógica de negocio.
+  - REST endpoints.
+  - No business logic.
 
 - `Dtos/`
-  - Contratos de entrada/salida para HTTP.
+  - Input/output contracts for HTTP.
 
 - `Validation/`
-  - Validaciones con FluentValidation.
+  - FluentValidation validators.
 
 - `Services/`
-  - Servicios propios de la API (p.ej. `TokenService`) que no pertenecen a reglas de negocio.
+  - API-specific services (e.g., `TokenService`) that are not business rules.
 
 - `Contracts/`
-  - `ApiResponse<T>`, `PagedResult<T>`, helpers RFC 7807.
+  - `ApiResponse<T>`, `PagedResult<T>`, RFC 7807 helpers.
 
 - `Utilities/`
   - `PaginationHelper`.
 
-## Flujo de solicitud (diagrama)
+## Request flow (diagram)
 
 ```text
 Client
@@ -56,40 +56,40 @@ Result mapping
 Client
 ```
 
-## Patrones y decisiones
+## Patterns and decisions
 
-### Controller thin / orchestration-only
-Los controladores no implementan reglas de negocio. Se limita a:
-- Validar request.
-- Llamar a servicios.
-- Mapear resultados a HTTP.
+### Thin controllers / orchestration-only
+Controllers do not implement business rules. They are limited to:
+- Validating the request.
+- Calling services.
+- Mapping results to HTTP.
 
-### Validación
-- DTO validation con FluentValidation.
-- Respuesta uniforme con `ValidationProblemDetails` (RFC 7807).
+### Validation
+- DTO validation with FluentValidation.
+- Uniform response with `ValidationProblemDetails` (RFC 7807).
 
-### Manejo de errores
-- Para errores esperados: `ProblemDetails` con status apropiado.
-- Para errores inesperados: `500` con logging estructurado.
+### Error handling
+- For expected errors: `ProblemDetails` with the appropriate status.
+- For unexpected errors: `500` with structured logging.
 
 ### Logging
 - `ILogger<T>`
-- Mensajes con placeholders para logging estructurado.
-- No se registra información sensible (p.ej. passwords).
+- Messages use placeholders for structured logging.
+- Do not log sensitive information (e.g., passwords).
 
-### Autenticación JWT
-- Access token (1h) con claims: `sub`, `email`, `role`.
-- Refresh tokens persistidos en DB (`RefreshTokens`).
-- Revocación del refresh token usado en refresh.
+### JWT authentication
+- Access token (1h) with claims: `sub`, `email`, `role`.
+- Refresh tokens persisted in DB (`RefreshTokens`).
+- Revoke the refresh token used during refresh.
 
-### Persistencia (EF Core)
-- `AemetDbContext` incluye ahora:
+### Persistence (EF Core)
+- `AemetDbContext` currently includes:
   - `UserAccounts`
   - `RefreshTokens`
-- Índice unique para `UserAccount.Email`.
+- Unique index for `UserAccount.Email`.
 
-## Extensiones futuras
+## Future extensions
 
-- Añadir controllers CRUD completos cuando existan services de dominio para Create/Update/Delete.
-- Normalizar modelos `Request` a PascalCase y mapear serialización según convención.
-- Introducir excepciones específicas (`RequestNotFoundException`, etc.) con middleware centralizado.
+- Add full CRUD controllers once domain services exist for Create/Update/Delete.
+- Normalize `Request` models to PascalCase and map serialization based on convention.
+- Introduce specific exceptions (`RequestNotFoundException`, etc.) with centralized middleware.

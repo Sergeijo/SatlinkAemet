@@ -1,38 +1,38 @@
-# Reglas maestras del proyecto
+# Project master rules
 
-Estas reglas aplican a todo el código del workspace.
+These rules apply to all code in this workspace.
 
-## Convenciones de código
+## Code conventions
 
-- Interfaces siempre con prefijo `I`.
-- Servicios siempre con sufijo `Service`.
-- Métodos `async` siempre con sufijo `Async`.
-- Usar `var` solo cuando el tipo sea obvio.
-- Estilo de llaves Allman (llave en nueva línea).
-- Campos privados en `_camelCase`.
+- Interfaces must be prefixed with `I`.
+- Services must be suffixed with `Service`.
+- `async` methods must be suffixed with `Async`.
+- Use `var` only when the type is obvious.
+- Allman brace style (opening brace on a new line).
+- Private fields use `_camelCase`.
 
-## Documentación
+## Documentation
 
-- Comentarios XML obligatorios en todos los métodos públicos:
+- XML comments are required on all public methods:
   - `/// <summary>`
   - `/// <param>`
   - `/// <returns>`
-  - `/// <exception>` cuando aplique.
-- Comentarios inline para describir pasos relevantes de la lógica.
+  - `/// <exception>` when applicable.
+- Use inline comments to describe relevant logic steps.
 
 ## API
 
-- Las respuestas deben envolverse en `Result<T>` o `ApiResponse<T>`.
-- Errores deben seguir RFC 7807 (`ProblemDetails`).
-- Logging estructurado con `ILogger`.
-- Prohibido `Console.WriteLine` en producción.
+- Responses must be wrapped in `Result<T>` or `ApiResponse<T>`.
+- Errors must follow RFC 7807 (`ProblemDetails`).
+- Use structured logging with `ILogger`.
+- `Console.WriteLine` is forbidden in production.
 
-## Validaciones
+## Validation
 
-- Validaciones de DTO de entrada deben implementarse con FluentValidation.
+- Input DTO validation must be implemented with FluentValidation.
 
 ## Testing
 
-- Tests con xUnit y NSubstitute.
-- Patrón Arrange-Act-Assert.
-- Nombre de tests: `MetodoTesteado_Escenario_ResultadoEsperado`.
+- Tests use xUnit and NSubstitute.
+- Arrange-Act-Assert pattern.
+- Test names: `MethodUnderTest_Scenario_ExpectedResult`.

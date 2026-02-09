@@ -1,103 +1,103 @@
 # Satlink.Api - Deployment / CI-CD
 
-Este documento describe cómo configurar el **CI/CD** de `Satlink.Api` con GitHub Actions, incluyendo:
-- CI: build + tests + cobertura + SonarQube.
-- CD: build Docker + push a ACR + deploy a Azure App Service (container) en `main`.
+This document describes how to set up **CI/CD** for `Satlink.Api` with GitHub Actions, including:
+- CI: build + tests + coverage + SonarQube.
+- CD: Docker build + push to ACR + deploy to Azure App Service (container) on `main`.
 
 > Workflows:
 > - `.github/workflows/satlink-api-ci.yml`
 > - `.github/workflows/satlink-api-cd.yml`
 
-## 1. Requisitos
+## 1. Requirements
 
-- Repositorio en GitHub.
+- GitHub repository.
 - Azure Subscription.
 - Azure Container Registry (ACR).
-- Azure App Service (Linux) configurado para ejecutar contenedor.
-- GitHub Actions habilitado.
+- Azure App Service (Linux) configured to run a container.
+- GitHub Actions enabled.
 
-## 2. Secretos requeridos (GitHub)
+## 2. Required secrets (GitHub)
 
-Configurar en: **Repository Settings → Secrets and variables → Actions**.
+Configure in: **Repository Settings → Secrets and variables → Actions**.
 
 ### 2.1. SonarQube (CI)
 
-El análisis se ejecuta solo si los secrets existen y no están vacíos.
+The analysis runs only if the secrets exist and are not empty.
 
 - `SONAR_HOST_URL`
-  - Ejemplo: `https://sonarqube.company.com`
+  - Example: `https://sonarqube.company.com`
 - `SONAR_TOKEN`
-  - Token de acceso generado en SonarQube.
+  - Access token generated in SonarQube.
 - `SONAR_PROJECT_KEY`
-  - Clave del proyecto en SonarQube.
+  - Project key in SonarQube.
 
 ### 2.2. Azure (CD)
 
-Se usa login con OIDC (`azure/login@v2`).
+Login uses OIDC (`azure/login@v2`).
 
 - `AZURE_CLIENT_ID`
 - `AZURE_TENANT_ID`
 - `AZURE_SUBSCRIPTION_ID`
 
-> Estos valores provienen de una App Registration / Service Principal con federated credentials para GitHub.
+> These values come from an App Registration / Service Principal with federated credentials for GitHub.
 
 ### 2.3. Azure Container Registry (ACR)
 
 - `ACR_NAME`
-  - Nombre del ACR (sin FQDN), p.ej. `satlinkacr`.
+  - ACR name (without FQDN), e.g. `satlinkacr`.
 - `ACR_LOGIN_SERVER`
-  - Login server, p.ej. `satlinkacr.azurecr.io`.
+  - Login server, e.g. `satlinkacr.azurecr.io`.
 - `ACR_REPOSITORY`
-  - Repositorio de imagen dentro del ACR, p.ej. `satlink-api`.
+  - Image repository inside ACR, e.g. `satlink-api`.
 
 ### 2.4. Azure App Service
 
 - `AZURE_APP_SERVICE_NAME`
-  - Nombre del App Service, p.ej. `satlink-api-prod`.
+  - App Service name, e.g. `satlink-api-prod`.
 
-## 3. Descripción de pipelines
+## 3. Pipeline description
 
 ## 3.1. CI (`satlink-api-ci.yml`)
 
 Triggers:
-- Push a `main`.
+- Push to `main`.
 - Pull Requests.
 
-Pasos:
+Steps:
 1. Checkout.
-2. Setup .NET 10.
+2. Set up .NET 10.
 3. SonarScanner `begin` (si hay secrets).
 4. Restore.
 5. Build.
-6. Test con cobertura (`XPlat Code Coverage`).
+6. Test with coverage (`XPlat Code Coverage`).
 7. SonarScanner `end` (si hay secrets).
-8. Publicación de artifacts `TestResults`.
+8. Publish `TestResults` artifacts.
 
 ## 3.2. CD (`satlink-api-cd.yml`)
 
 Trigger:
-- Push a `main`.
+- Push to `main`.
 
-Protección recomendada:
-- El workflow de CD usa un **GitHub Environment** llamado `production`.
-- Configura approvals en: **Repository Settings → Environments → production → Required reviewers**.
-- Con esto, cada ejecución de CD quedará **pausada** hasta ser aprobada.
+Recommended protection:
+- The CD workflow uses a **GitHub Environment** named `production`.
+- Configure approvals in: **Repository Settings → Environments → production → Required reviewers**.
+- With this, each CD run will be **paused** until approved.
 
-Pasos:
+Steps:
 1. Checkout.
-2. Login Azure (OIDC).
+2. Azure login (OIDC).
 3. Login ACR.
-4. Build Docker image usando `Satlink.Api/Dockerfile`.
-5. Push a ACR con tag igual a `github.sha`.
-6. Deploy a Azure App Service con `azure/webapps-deploy@v3`.
+4. Build the Docker image using `Satlink.Api/Dockerfile`.
+5. Push to ACR with tag equal to `github.sha`.
+6. Deploy to Azure App Service with `azure/webapps-deploy@v3`.
 
-## 4. Variables de aplicación en Azure
+## 4. Azure application settings
 
-Recomendación:
-- No almacenar secretos en `appsettings.json` en producción.
-- Configurar `Jwt:Key` y connection strings con App Settings del App Service.
+Recommendation:
+- Do not store secrets in `appsettings.json` in production.
+- Configure `Jwt:Key` and connection strings via App Service settings.
 
-Claves sugeridas en App Service → Configuration → Application settings:
+Suggested keys in App Service → Configuration → Application settings:
 - `Jwt__Issuer`
 - `Jwt__Audience`
 - `Jwt__Key`
@@ -105,26 +105,26 @@ Claves sugeridas en App Service → Configuration → Application settings:
 
 ## 5. Troubleshooting
 
-### 5.1. El workflow falla en restore
-- Verifica conectividad desde GitHub runners a NuGet.
-- Asegura que no dependes de feeds privados sin credenciales.
+### 5.1. The workflow fails during restore
+- Verify connectivity from GitHub runners to NuGet.
+- Ensure you don't depend on private feeds without credentials.
 
-### 5.2. SonarQube no se ejecuta
-- Revisa que `SONAR_HOST_URL`, `SONAR_TOKEN` y `SONAR_PROJECT_KEY` estén configurados.
-- El workflow omite SonarQube si falta alguno.
+### 5.2. SonarQube does not run
+- Check that `SONAR_HOST_URL`, `SONAR_TOKEN` and `SONAR_PROJECT_KEY` are configured.
+- The workflow skips SonarQube if any are missing.
 
-### 5.3. CD queda esperando aprobación
-- Es el comportamiento esperado cuando el environment `production` tiene required reviewers.
-- Revisa la pestaña Actions y aprueba el deployment.
+### 5.3. CD is waiting for approval
+- This is expected when the `production` environment has required reviewers.
+- Go to the Actions tab and approve the deployment.
 
-### 5.4. CD falla al hacer login a Azure
-- Verifica federated credentials del Service Principal.
-- Verifica permisos del SP sobre ACR y App Service:
-  - `AcrPush` sobre el ACR.
-  - Contributor (o rol mínimo equivalente) para el App Service.
+### 5.4. CD fails to log in to Azure
+- Verify the Service Principal's federated credentials.
+- Verify the SP permissions over ACR and App Service:
+  - `AcrPush` on the ACR.
+  - Contributor (or the minimum equivalent role) on the App Service.
 
-### 5.5. App Service no arranca el contenedor
-- Verifica que está configurado como Linux container.
-- Revisa logs de contenedor (App Service → Log stream).
-- Verifica `ACR_LOGIN_SERVER/ACR_REPOSITORY:tag`.
+### 5.5. App Service does not start the container
+- Verify it's configured as a Linux container.
+- Check container logs (App Service → Log stream).
+- Verify `ACR_LOGIN_SERVER/ACR_REPOSITORY:tag`.
 
