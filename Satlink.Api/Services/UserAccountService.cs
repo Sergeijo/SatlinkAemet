@@ -1,32 +1,30 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-using Microsoft.EntityFrameworkCore;
-
 using Satlink.Domain.Models;
-using Satlink.Infrastructure.DI;
+using Satlink.Logic;
 
 namespace Satlink.Api.Services;
 
 /// <summary>
-/// Default implementation of <see cref="IUserAccountService"/> backed by <see cref="AemetDbContext"/>.
+/// Default implementation of <see cref="IUserAccountService"/> backed by <see cref="IUserAccountRepository"/>.
 /// </summary>
 public sealed class UserAccountService : IUserAccountService
 {
-    private readonly AemetDbContext _dbContext;
+    private readonly IUserAccountRepository _userAccountRepository;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserAccountService"/> class.
     /// </summary>
-    /// <param name="dbContext">The database context.</param>
-    public UserAccountService(AemetDbContext dbContext)
+    /// <param name="userAccountRepository">The user account repository.</param>
+    public UserAccountService(IUserAccountRepository userAccountRepository)
     {
-        _dbContext = dbContext;
+        _userAccountRepository = userAccountRepository;
     }
 
     /// <inheritdoc />
     public Task<UserAccount?> GetByEmailAsync(string email, CancellationToken cancellationToken)
     {
-        return _dbContext.UserAccounts.SingleOrDefaultAsync(x => x.Email == email, cancellationToken);
+        return _userAccountRepository.GetByEmailAsync(email, cancellationToken);
     }
 }

@@ -5,15 +5,13 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 using Satlink.Api.Configuration;
 using Satlink.Domain.Models;
-using Satlink.Infrastructure.DI;
+using Satlink.Logic;
 
 namespace Satlink.Api.Services;
 
@@ -25,19 +23,19 @@ public sealed class TokenService : ITokenService
     private static readonly TimeSpan AccessTokenLifetime = TimeSpan.FromHours(1);
     private static readonly TimeSpan RefreshTokenLifetime = TimeSpan.FromDays(30);
 
-    private readonly AemetDbContext _dbContext;
+    private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly JwtOptions _jwtOptions;
     private readonly ILogger<TokenService> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TokenService"/> class.
     /// </summary>
-    /// <param name="dbContext">The database context.</param>
+    /// <param name="refreshTokenRepository">The refresh token repository.</param>
     /// <param name="jwtOptions">JWT options.</param>
     /// <param name="logger">The logger.</param>
-    public TokenService(AemetDbContext dbContext, IOptions<JwtOptions> jwtOptions, ILogger<TokenService> logger)
+    public TokenService(IRefreshTokenRepository refreshTokenRepository, IOptions<JwtOptions> jwtOptions, ILogger<TokenService> logger)
     {
-        _dbContext = dbContext;
+        _refreshTokenRepository = refreshTokenRepository;
         _jwtOptions = jwtOptions.Value;
         _logger = logger;
     }
@@ -85,8 +83,7 @@ public sealed class TokenService : ITokenService
         };
 
         // Persist refresh token.
-        await _dbContext.RefreshTokens.AddAsync(refreshToken, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await _refreshTokenRepository.CreateAsync(refreshToken, cancellationToken);
 
         _logger.LogInformation("Generated refresh token {RefreshTokenId} for user {UserId}", refreshToken.Id, user.Id);
 
@@ -127,9 +124,8 @@ public sealed class TokenService : ITokenService
     public async Task<(string AccessToken, string RefreshToken, int ExpiresIn)> RefreshTokensAsync(string refreshToken, CancellationToken cancellationToken)
     {
         // Load refresh token with its user.
-        RefreshToken? stored = await _dbContext.RefreshTokens
-            .Include(x => x.UserAccount)
-            .SingleOrDefaultAsync(x => x.Token == refreshToken, cancellationToken);
+        RefreshToken? stored = await _refreshTokenRepository
+            .GetByTokenWithUserAsync(refreshToken, cancellationToken);
 
         if (stored is null)
         {
@@ -156,8 +152,12 @@ public sealed class TokenService : ITokenService
         }
 
         // Revoke current token.
-        stored.IsRevoked = true;
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        bool revoked = await _refreshTokenRepository.RevokeAsync(stored.Id, cancellationToken);
+        if (!revoked)
+        {
+            _logger.LogWarning("Refresh token not found when revoking: {RefreshTokenId}", stored.Id);
+            throw new InvalidOperationException("Refresh token not found.");
+        }
 
         // Issue new tokens.
         string accessToken = GenerateAccessToken(stored.UserAccount);

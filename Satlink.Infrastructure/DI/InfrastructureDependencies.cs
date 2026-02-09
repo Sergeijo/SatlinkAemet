@@ -16,6 +16,8 @@ namespace Satlink.Infrastructure.DI
                 options.UseSqlServer(configuration.GetConnectionString("SatlinkApp")));
             services.AddScoped<IAemetRepository, AemetRepository>();
             services.AddScoped<IRequestsRepository, RequestsRepository>();
+            services.AddScoped<IUserAccountRepository, UserAccountRepository>();
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         }
     }
 }
