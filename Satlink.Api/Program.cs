@@ -11,6 +11,7 @@ using Satlink.Api.Configuration;
 using Satlink.Api.Services;
 using Satlink.Infrastructure.DI;
 using Satlink.Logic.DI;
+using Satlink.Logic;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -89,6 +90,8 @@ builder.Services.AddAuthorization();
 // Register project dependencies.
 builder.Services.RegisterInfrastructureDependencies(builder.Configuration);
 builder.Services.RegisterLogicDependencies();
+
+builder.Services.AddHttpClient<IAemetOpenDataClient, AemetOpenDataClient>();
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserAccountService, UserAccountService>();
