@@ -18,6 +18,8 @@ namespace Satlink.Infrastructure.DI
             services.AddScoped<IRequestsRepository, RequestsRepository>();
             services.AddScoped<IUserAccountRepository, UserAccountRepository>();
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
         }
     }
 }

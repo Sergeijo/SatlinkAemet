@@ -2,7 +2,7 @@ using BCrypt.Net;
 
 using Satlink.Logic;
 
-namespace Satlink.Api.Services;
+namespace Satlink.Infrastructure;
 
 public sealed class BcryptPasswordHasher : IPasswordHasher
 {

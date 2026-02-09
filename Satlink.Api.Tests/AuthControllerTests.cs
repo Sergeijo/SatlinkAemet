@@ -28,7 +28,7 @@ public sealed class AuthControllerTests
         {
             Id = Guid.NewGuid(),
             Email = "user@test.com",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"),
+            PasswordHash = "hash",
             Role = "User"
         };
 
@@ -109,7 +109,7 @@ public sealed class AuthControllerTests
         {
             Id = Guid.NewGuid(),
             Email = "user@test.com",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"),
+            PasswordHash = "hash",
             Role = "User"
         };
 

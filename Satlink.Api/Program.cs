@@ -7,11 +7,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
-using Satlink.Api.Configuration;
 using Satlink.Api.Services;
 using Satlink.Infrastructure.DI;
 using Satlink.Logic.DI;
 using Satlink.Logic;
+using Satlink.Logic.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -92,9 +92,6 @@ builder.Services.RegisterInfrastructureDependencies(builder.Configuration);
 builder.Services.RegisterLogicDependencies();
 
 builder.Services.AddHttpClient<IAemetOpenDataClient, AemetOpenDataClient>();
-
-builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
 
 var app = builder.Build();
 
