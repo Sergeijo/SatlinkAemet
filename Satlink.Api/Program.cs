@@ -94,7 +94,7 @@ builder.Services.RegisterLogicDependencies();
 builder.Services.AddHttpClient<IAemetOpenDataClient, AemetOpenDataClient>();
 
 builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<IUserAccountService, UserAccountService>();
+builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
 
 var app = builder.Build();
 

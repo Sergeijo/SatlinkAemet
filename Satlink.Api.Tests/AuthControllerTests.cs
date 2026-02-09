@@ -32,23 +32,19 @@ public sealed class AuthControllerTests
             Role = "User"
         };
 
-        IUserAccountService userAccountService = Substitute.For<IUserAccountService>();
-        ITokenService tokenService = Substitute.For<ITokenService>();
+        IAuthService authService = Substitute.For<IAuthService>();
         ILogger<AuthController> logger = Substitute.For<ILogger<AuthController>>();
 
-        userAccountService.GetByEmailAsync(user.Email, Arg.Any<CancellationToken>()).Returns(user);
-
-        tokenService.GenerateAccessToken(user).Returns("access.jwt");
-        tokenService.GenerateRefreshTokenAsync(user, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(new RefreshToken
+        authService.LoginAsync(user.Email, "password123", Arg.Any<CancellationToken>())
+            .Returns(Result.Ok(new AuthLoginResult
             {
-                Id = Guid.NewGuid(),
-                Token = "refresh.token",
-                UserAccountId = user.Id,
-                ExpiresAtUtc = DateTime.UtcNow.AddDays(1)
+                AccessToken = "access.jwt",
+                RefreshToken = "refresh.token",
+                ExpiresIn = 3600,
+                User = user
             }));
 
-        AuthController controller = new AuthController(userAccountService, tokenService, logger)
+        AuthController controller = new AuthController(authService, logger)
         {
             ControllerContext = new ControllerContext
             {
@@ -71,22 +67,20 @@ public sealed class AuthControllerTests
         Assert.Equal(3600, payload.Data.ExpiresIn);
         Assert.Equal(user.Email, payload.Data.User.Email);
 
-        await userAccountService.Received(1).GetByEmailAsync(user.Email, Arg.Any<CancellationToken>());
-        tokenService.Received(1).GenerateAccessToken(user);
-        await tokenService.Received(1).GenerateRefreshTokenAsync(user, Arg.Any<CancellationToken>());
+        await authService.Received(1).LoginAsync(user.Email, "password123", Arg.Any<CancellationToken>());
     }
 
     [Fact]
     public async Task LoginAsync_UsuarioNoExiste_RetornaUnauthorizedAsync()
     {
         // Arrange
-        IUserAccountService userAccountService = Substitute.For<IUserAccountService>();
-        ITokenService tokenService = Substitute.For<ITokenService>();
+        IAuthService authService = Substitute.For<IAuthService>();
         ILogger<AuthController> logger = Substitute.For<ILogger<AuthController>>();
 
-        userAccountService.GetByEmailAsync("missing@test.com", Arg.Any<CancellationToken>()).Returns((UserAccount?)null);
+        authService.LoginAsync("missing@test.com", "wrong", Arg.Any<CancellationToken>())
+            .Returns(Result.Fail<AuthLoginResult>("Invalid credentials."));
 
-        AuthController controller = new AuthController(userAccountService, tokenService, logger)
+        AuthController controller = new AuthController(authService, logger)
         {
             ControllerContext = new ControllerContext
             {
@@ -104,8 +98,7 @@ public sealed class AuthControllerTests
         ProblemDetails problem = Assert.IsType<ProblemDetails>(unauthorized.Value);
         Assert.Equal(StatusCodes.Status401Unauthorized, problem.Status);
 
-        await userAccountService.Received(1).GetByEmailAsync("missing@test.com", Arg.Any<CancellationToken>());
-        tokenService.DidNotReceive().GenerateAccessToken(Arg.Any<UserAccount>());
+        await authService.Received(1).LoginAsync("missing@test.com", "wrong", Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -120,13 +113,13 @@ public sealed class AuthControllerTests
             Role = "User"
         };
 
-        IUserAccountService userAccountService = Substitute.For<IUserAccountService>();
-        ITokenService tokenService = Substitute.For<ITokenService>();
+        IAuthService authService = Substitute.For<IAuthService>();
         ILogger<AuthController> logger = Substitute.For<ILogger<AuthController>>();
 
-        userAccountService.GetByEmailAsync(user.Email, Arg.Any<CancellationToken>()).Returns(user);
+        authService.LoginAsync(user.Email, "wrong", Arg.Any<CancellationToken>())
+            .Returns(Result.Fail<AuthLoginResult>("Invalid credentials."));
 
-        AuthController controller = new AuthController(userAccountService, tokenService, logger)
+        AuthController controller = new AuthController(authService, logger)
         {
             ControllerContext = new ControllerContext
             {
@@ -144,21 +137,25 @@ public sealed class AuthControllerTests
         ProblemDetails problem = Assert.IsType<ProblemDetails>(unauthorized.Value);
         Assert.Equal(StatusCodes.Status401Unauthorized, problem.Status);
 
-        tokenService.DidNotReceive().GenerateAccessToken(Arg.Any<UserAccount>());
+        await authService.Received(1).LoginAsync(user.Email, "wrong", Arg.Any<CancellationToken>());
     }
 
     [Fact]
     public async Task RefreshAsync_TokenValido_RetornaOkConNuevosTokensAsync()
     {
         // Arrange
-        IUserAccountService userAccountService = Substitute.For<IUserAccountService>();
-        ITokenService tokenService = Substitute.For<ITokenService>();
+        IAuthService authService = Substitute.For<IAuthService>();
         ILogger<AuthController> logger = Substitute.For<ILogger<AuthController>>();
 
-        tokenService.RefreshTokensAsync("refresh.token", Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(("new.access", "new.refresh", 3600)));
+        authService.RefreshAsync("refresh.token", Arg.Any<CancellationToken>())
+            .Returns(Result.Ok(new AuthRefreshResult
+            {
+                AccessToken = "new.access",
+                RefreshToken = "new.refresh",
+                ExpiresIn = 3600
+            }));
 
-        AuthController controller = new AuthController(userAccountService, tokenService, logger)
+        AuthController controller = new AuthController(authService, logger)
         {
             ControllerContext = new ControllerContext
             {
@@ -180,21 +177,20 @@ public sealed class AuthControllerTests
         Assert.Equal("new.refresh", payload.Data.RefreshToken);
         Assert.Equal(3600, payload.Data.ExpiresIn);
 
-        await tokenService.Received(1).RefreshTokensAsync("refresh.token", Arg.Any<CancellationToken>());
+        await authService.Received(1).RefreshAsync("refresh.token", Arg.Any<CancellationToken>());
     }
 
     [Fact]
     public async Task RefreshAsync_TokenInvalido_RetornaUnauthorizedAsync()
     {
         // Arrange
-        IUserAccountService userAccountService = Substitute.For<IUserAccountService>();
-        ITokenService tokenService = Substitute.For<ITokenService>();
+        IAuthService authService = Substitute.For<IAuthService>();
         ILogger<AuthController> logger = Substitute.For<ILogger<AuthController>>();
 
-        tokenService.RefreshTokensAsync("bad.token", Arg.Any<CancellationToken>())
-            .Returns<Task<(string AccessToken, string RefreshToken, int ExpiresIn)>>(x => throw new InvalidOperationException("Refresh token not found."));
+        authService.RefreshAsync("bad.token", Arg.Any<CancellationToken>())
+            .Returns(Result.Fail<AuthRefreshResult>("Refresh token not found."));
 
-        AuthController controller = new AuthController(userAccountService, tokenService, logger)
+        AuthController controller = new AuthController(authService, logger)
         {
             ControllerContext = new ControllerContext
             {

@@ -2,8 +2,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-using BCrypt.Net;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -22,20 +20,17 @@ namespace Satlink.Api.Controllers;
 [Route("api/[controller]")]
 public sealed class AuthController : ControllerBase
 {
-    private readonly IUserAccountService _userAccountService;
-    private readonly ITokenService _tokenService;
+    private readonly IAuthService _authService;
     private readonly ILogger<AuthController> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AuthController"/> class.
     /// </summary>
-    /// <param name="userAccountService">The user account service.</param>
-    /// <param name="tokenService">The token service.</param>
+    /// <param name="authService">The auth use case.</param>
     /// <param name="logger">The logger.</param>
-    public AuthController(IUserAccountService userAccountService, ITokenService tokenService, ILogger<AuthController> logger)
+    public AuthController(IAuthService authService, ILogger<AuthController> logger)
     {
-        _userAccountService = userAccountService;
-        _tokenService = tokenService;
+        _authService = authService;
         _logger = logger;
     }
 
@@ -59,46 +54,29 @@ public sealed class AuthController : ControllerBase
 
         try
         {
-            // Load user by email.
-            UserAccount? user = await _userAccountService.GetByEmailAsync(dto.Email, cancellationToken);
+            Result<AuthLoginResult> result = await _authService.LoginAsync(dto.Email, dto.Password, cancellationToken);
 
-            if (user is null)
+            if (result.IsFailure)
             {
                 _logger.LogWarning("Invalid credentials for email {Email}", dto.Email);
 
                 ProblemDetails problem = HttpContext.CreateProblemDetails(
                     StatusCodes.Status401Unauthorized,
                     "Unauthorized",
-                    "Invalid credentials.");
+                    result.Error);
 
                 return Unauthorized(problem);
             }
 
-            // Verify bcrypt hash.
-            bool isValidPassword = BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash);
-
-            if (!isValidPassword)
-            {
-                _logger.LogWarning("Invalid credentials for email {Email}", dto.Email);
-
-                ProblemDetails problem = HttpContext.CreateProblemDetails(
-                    StatusCodes.Status401Unauthorized,
-                    "Unauthorized",
-                    "Invalid credentials.");
-
-                return Unauthorized(problem);
-            }
-
-            // Generate tokens.
-            string accessToken = _tokenService.GenerateAccessToken(user);
-            RefreshToken refreshToken = await _tokenService.GenerateRefreshTokenAsync(user, cancellationToken);
+            AuthLoginResult auth = result.Value;
+            UserAccount user = auth.User;
 
             // Build result.
             AuthResponse response = new AuthResponse
             {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken.Token,
-                ExpiresIn = 3600,
+                AccessToken = auth.AccessToken,
+                RefreshToken = auth.RefreshToken,
+                ExpiresIn = auth.ExpiresIn,
                 User = new AuthUserDto
                 {
                     Id = user.Id,
@@ -142,8 +120,14 @@ public sealed class AuthController : ControllerBase
 
         try
         {
-            // Refresh tokens.
-            (string AccessToken, string RefreshToken, int ExpiresIn) refreshed = await _tokenService.RefreshTokensAsync(dto.RefreshToken, cancellationToken);
+            Result<AuthRefreshResult> result = await _authService.RefreshAsync(dto.RefreshToken, cancellationToken);
+
+            if (result.IsFailure)
+            {
+                throw new InvalidOperationException(result.Error);
+            }
+
+            AuthRefreshResult refreshed = result.Value;
 
             AuthResponse response = new AuthResponse
             {
