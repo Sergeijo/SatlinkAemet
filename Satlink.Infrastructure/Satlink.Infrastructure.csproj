@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Satlink.Domain\Satlink.Domain.csproj" />
+    <ProjectReference Include="..\Satlink.Logic\Satink.Logic.csproj" />
   </ItemGroup>
 
 </Project>
