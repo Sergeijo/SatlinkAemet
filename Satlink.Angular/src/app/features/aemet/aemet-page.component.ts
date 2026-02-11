@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
@@ -19,14 +19,13 @@ type ZoneOption = { key: number; value: string };
   selector: 'app-aemet-page',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     SelectModule,
     ButtonModule,
     TableModule,
     ProgressSpinnerModule,
     MessageModule
-  ],
+],
   templateUrl: './aemet-page.component.html',
   styleUrl: './aemet-page.component.scss'
 })
