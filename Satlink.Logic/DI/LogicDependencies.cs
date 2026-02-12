@@ -8,6 +8,7 @@ namespace Satlink.Logic.DI
         {
             services.AddScoped<IAemetValuesService, AemetValuesService>();
             services.AddScoped<IRequestsService, RequestsService>();
+            services.AddScoped<IAuthService, AuthService>();
         }
     }
 }

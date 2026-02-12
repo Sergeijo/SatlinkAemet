@@ -1,11 +1,10 @@
-using System;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Satlink.Domain.Models;
 
-namespace Satlink.Api.Services;
+namespace Satlink.Logic;
 
 /// <summary>
 /// Provides JWT access token and refresh token operations.

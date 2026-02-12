@@ -6,16 +6,15 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-using Satlink.Api.Configuration;
 using Satlink.Domain.Models;
-using Satlink.Infrastructure.DI;
+using Satlink.Logic;
+using Satlink.Logic.Configuration;
 
-namespace Satlink.Api.Services;
+namespace Satlink.Infrastructure;
 
 /// <summary>
 /// Implements JWT token generation and refresh flows.
@@ -25,31 +24,22 @@ public sealed class TokenService : ITokenService
     private static readonly TimeSpan AccessTokenLifetime = TimeSpan.FromHours(1);
     private static readonly TimeSpan RefreshTokenLifetime = TimeSpan.FromDays(30);
 
-    private readonly AemetDbContext _dbContext;
+    private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly JwtOptions _jwtOptions;
     private readonly ILogger<TokenService> _logger;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="TokenService"/> class.
-    /// </summary>
-    /// <param name="dbContext">The database context.</param>
-    /// <param name="jwtOptions">JWT options.</param>
-    /// <param name="logger">The logger.</param>
-    public TokenService(AemetDbContext dbContext, IOptions<JwtOptions> jwtOptions, ILogger<TokenService> logger)
+    public TokenService(IRefreshTokenRepository refreshTokenRepository, IOptions<JwtOptions> jwtOptions, ILogger<TokenService> logger)
     {
-        _dbContext = dbContext;
+        _refreshTokenRepository = refreshTokenRepository;
         _jwtOptions = jwtOptions.Value;
         _logger = logger;
     }
 
-    /// <inheritdoc />
     public string GenerateAccessToken(UserAccount user)
     {
-        // Build signing credentials.
         SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key));
         SigningCredentials credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        // Create standard claims.
         Claim[] claims =
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
@@ -57,7 +47,6 @@ public sealed class TokenService : ITokenService
             new Claim(ClaimTypes.Role, user.Role)
         };
 
-        // Create the token.
         JwtSecurityToken token = new JwtSecurityToken(
             issuer: _jwtOptions.Issuer,
             audience: _jwtOptions.Audience,
@@ -69,10 +58,8 @@ public sealed class TokenService : ITokenService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    /// <inheritdoc />
     public async Task<RefreshToken> GenerateRefreshTokenAsync(UserAccount user, CancellationToken cancellationToken)
     {
-        // Generate cryptographically strong token.
         string tokenValue = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
 
         RefreshToken refreshToken = new RefreshToken
@@ -84,19 +71,15 @@ public sealed class TokenService : ITokenService
             UserAccountId = user.Id
         };
 
-        // Persist refresh token.
-        await _dbContext.RefreshTokens.AddAsync(refreshToken, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        await _refreshTokenRepository.CreateAsync(refreshToken, cancellationToken);
 
         _logger.LogInformation("Generated refresh token {RefreshTokenId} for user {UserId}", refreshToken.Id, user.Id);
 
         return refreshToken;
     }
 
-    /// <inheritdoc />
     public ClaimsPrincipal? ValidateAccessToken(string token)
     {
-        // Validate token without throwing server errors to callers.
         TokenValidationParameters parameters = new TokenValidationParameters
         {
             ValidIssuer = _jwtOptions.Issuer,
@@ -123,13 +106,9 @@ public sealed class TokenService : ITokenService
         }
     }
 
-    /// <inheritdoc />
     public async Task<(string AccessToken, string RefreshToken, int ExpiresIn)> RefreshTokensAsync(string refreshToken, CancellationToken cancellationToken)
     {
-        // Load refresh token with its user.
-        RefreshToken? stored = await _dbContext.RefreshTokens
-            .Include(x => x.UserAccount)
-            .SingleOrDefaultAsync(x => x.Token == refreshToken, cancellationToken);
+        RefreshToken? stored = await _refreshTokenRepository.GetByTokenWithUserAsync(refreshToken, cancellationToken);
 
         if (stored is null)
         {
@@ -155,11 +134,13 @@ public sealed class TokenService : ITokenService
             throw new InvalidOperationException("Refresh token has no user.");
         }
 
-        // Revoke current token.
-        stored.IsRevoked = true;
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        bool revoked = await _refreshTokenRepository.RevokeAsync(stored.Id, cancellationToken);
+        if (!revoked)
+        {
+            _logger.LogWarning("Refresh token not found when revoking: {RefreshTokenId}", stored.Id);
+            throw new InvalidOperationException("Refresh token not found.");
+        }
 
-        // Issue new tokens.
         string accessToken = GenerateAccessToken(stored.UserAccount);
         RefreshToken newRefreshToken = await GenerateRefreshTokenAsync(stored.UserAccount, cancellationToken);
 

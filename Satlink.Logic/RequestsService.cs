@@ -3,10 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Microsoft.EntityFrameworkCore;
-
 using Satlink.Domain.Models;
-using Satlink.Infrastructure.DI;
 
 namespace Satlink.Logic;
 
@@ -15,15 +12,15 @@ namespace Satlink.Logic;
 /// </summary>
 public sealed class RequestsService : IRequestsService
 {
-    private readonly AemetDbContext _dbContext;
+    private readonly IRequestsRepository _requestsRepository;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RequestsService"/> class.
     /// </summary>
-    /// <param name="dbContext">The database context.</param>
-    public RequestsService(AemetDbContext dbContext)
+    /// <param name="requestsRepository">The requests repository.</param>
+    public RequestsService(IRequestsRepository requestsRepository)
     {
-        _dbContext = dbContext;
+        _requestsRepository = requestsRepository;
     }
 
     /// <inheritdoc />
@@ -31,10 +28,7 @@ public sealed class RequestsService : IRequestsService
     {
         try
         {
-            // Load all requests.
-            List<Request> items = await _dbContext.zonePredictionsItems
-                .AsNoTracking()
-                .ToListAsync(cancellationToken);
+            List<Request> items = await _requestsRepository.GetAllAsync(cancellationToken);
 
             // Return items.
             return Result.Ok(items);
@@ -51,10 +45,7 @@ public sealed class RequestsService : IRequestsService
     {
         try
         {
-            // Query by id.
-            Request? entity = await _dbContext.zonePredictionsItems
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.id == id, cancellationToken);
+            Request? entity = await _requestsRepository.GetByIdAsync(id, cancellationToken);
 
             if (entity is null)
             {
@@ -81,12 +72,10 @@ public sealed class RequestsService : IRequestsService
                 request.id = Guid.NewGuid().ToString("N");
             }
 
-            // Add entity.
-            await _dbContext.zonePredictionsItems.AddAsync(request, cancellationToken);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            Request created = await _requestsRepository.CreateAsync(request, cancellationToken);
 
             // Return created.
-            return Result.Ok(request);
+            return Result.Ok(created);
         }
         catch (Exception ex)
         {
@@ -99,24 +88,11 @@ public sealed class RequestsService : IRequestsService
     {
         try
         {
-            // Locate entity.
-            Request? existing = await _dbContext.zonePredictionsItems
-                .FirstOrDefaultAsync(x => x.id == id, cancellationToken);
+            Request? updated = await _requestsRepository.UpdateAsync(id, request, cancellationToken);
 
-            if (existing is null)
-            {
-                return Result.Fail<Request>("Request not found.");
-            }
-
-            // Apply updates (minimal field set).
-            existing.nombre = request.nombre;
-            existing.origen = request.origen;
-            existing.situacion = request.situacion;
-            existing.prediccion = request.prediccion;
-
-            await _dbContext.SaveChangesAsync(cancellationToken);
-
-            return Result.Ok(existing);
+            return updated is null
+                ? Result.Fail<Request>("Request not found.")
+                : Result.Ok(updated);
         }
         catch (Exception ex)
         {
@@ -129,18 +105,12 @@ public sealed class RequestsService : IRequestsService
     {
         try
         {
-            // Locate entity.
-            Request? existing = await _dbContext.zonePredictionsItems
-                .FirstOrDefaultAsync(x => x.id == id, cancellationToken);
+            bool deleted = await _requestsRepository.DeleteAsync(id, cancellationToken);
 
-            if (existing is null)
+            if (!deleted)
             {
                 return Result.Fail("Request not found.");
             }
-
-            // Delete entity.
-            _dbContext.zonePredictionsItems.Remove(existing);
-            await _dbContext.SaveChangesAsync(cancellationToken);
 
             return Result.Ok();
         }
