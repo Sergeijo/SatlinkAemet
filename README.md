@@ -1,6 +1,6 @@
 # SatlinkAemet
 
-Solution for the **Satlink technical test** based on a layered architecture with:
+Solution for the **Satlink technical test** based on a Clean-Architecture with:
 
 - **WPF (MVVM)** client.
 - **Angular** client.
