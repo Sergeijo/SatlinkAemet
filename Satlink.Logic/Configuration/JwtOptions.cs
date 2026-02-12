@@ -1,4 +1,4 @@
-namespace Satlink.Api.Configuration;
+namespace Satlink.Logic.Configuration;
 
 /// <summary>
 /// Represents JWT configuration options.

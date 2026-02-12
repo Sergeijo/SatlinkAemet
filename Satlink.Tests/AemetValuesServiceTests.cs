@@ -17,10 +17,10 @@ namespace Satlink.Tests
 
             try
             {
-                DummyRepository mockRepo = new DummyRepository();
-                AemetValuesService service = new AemetValuesService(mockRepo);
+                DummyOpenDataClient openDataClient = new DummyOpenDataClient();
+                AemetValuesService service = new AemetValuesService(openDataClient);
 
-                Result result = service.GetAemetMarineZonePredictionValuesAsync("key", "http://not_a_valid_url_for_test", 1)
+                Result<List<Request>> result = service.GetAemetMarineZonePredictionValuesAsync("key", "http://not_a_valid_url_for_test", 1)
                     .GetAwaiter()
                     .GetResult();
 
@@ -54,14 +54,17 @@ namespace Satlink.Tests
         }
     }
 
-    internal sealed class DummyRepository : IAemetRepository
+    internal sealed class DummyOpenDataClient : Satlink.Logic.IAemetOpenDataClient
     {
-        public IEnumerable<Request> GetAllAemetItems() => new List<Request>();
+        public Task<string> GetMarineZoneDescriptorJsonAsync(string apiKey, string baseUrl, int zone, CancellationToken cancellationToken)
+        {
+            // Return invalid JSON so the service fails.
+            return Task.FromResult("{");
+        }
 
-        public Task<Request> GetAemetItems(int id) => Task.FromResult<Request>(null!);
-
-        public Task<List<Request>> GetAllAemetItemsAsync(CancellationToken cancellationToken) => Task.FromResult(new List<Request>());
-
-        public Task<Request?> GetAemetItemByIdAsync(int id, CancellationToken cancellationToken) => Task.FromResult<Request?>(null);
+        public Task<string> DownloadJsonAsync(string url, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(string.Empty);
+        }
     }
 }
