@@ -1,6 +1,8 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, computed, inject, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { catchError, concat, defer, map, Observable, of, skip, switchMap } from 'rxjs';
 
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
@@ -19,14 +21,13 @@ type ZoneOption = { key: number; value: string };
   selector: 'app-aemet-page',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     SelectModule,
     ButtonModule,
     TableModule,
     ProgressSpinnerModule,
     MessageModule
-  ],
+],
   templateUrl: './aemet-page.component.html',
   styleUrl: './aemet-page.component.scss'
 })
@@ -41,62 +42,73 @@ export class AemetPageComponent {
   ];
 
   readonly selectedZone = signal<number>(2);
-  readonly isLoading = signal(false);
-  readonly error = signal<string | null>(null);
+  private readonly downloadTrigger = signal(0);
 
-  readonly items = signal<Zona[]>([]);
+  private readonly state = toSignal(this.createLoadState$(), {
+    initialValue: { loading: false, error: null as string | null, items: [] as Zona[] }
+  });
 
+  readonly isLoading = computed(() => this.state().loading);
+  readonly error = computed(() => this.state().error);
+  readonly items = computed(() => this.state().items);
   readonly canDownload = computed(() => !this.isLoading());
 
   download() {
-    this.error.set(null);
-    this.isLoading.set(true);
-    this.items.set([]);
-
-    this.apiKeyService.getApiKey().subscribe({
-      next: (apiKey) => this.postValues(apiKey, true),
-      error: (err) => {
-        this.error.set(err instanceof Error ? err.message : 'Unable to obtain apiKey.');
-        this.isLoading.set(false);
-      }
-    });
+    this.downloadTrigger.update(v => v + 1);
   }
 
-  private postValues(apiKey: string, canRetryWithFreshKey: boolean) {
+  private createLoadState$(): Observable<{ loading: boolean; error: string | null; items: Zona[] }> {
+    return toObservable(this.downloadTrigger).pipe(
+      skip(1),
+      switchMap(() => {
+        const zone = this.selectedZone();
+
+        const request$ = defer(() => this.apiKeyService.getApiKey()).pipe(
+          switchMap((apiKey) => this.fetchZonas$(apiKey, zone, true)),
+          map((items) => ({ loading: false, error: null, items })),
+          catchError((err: unknown) => {
+            const message = err instanceof Error ? err.message : 'Request failed.';
+            return of({ loading: false, error: message, items: [] as Zona[] });
+          })
+        );
+
+        return concat(
+          of({ loading: true, error: null, items: [] as Zona[] }),
+          request$
+        );
+      })
+    );
+  }
+
+  private fetchZonas$(apiKey: string, zone: number, canRetryWithFreshKey: boolean): Observable<Zona[]> {
     const payload: GetAemetValuesRequestDto = {
       apiKey,
       url: environment.aemetUrl,
-      zone: this.selectedZone()
+      zone
     };
 
-    this.aemetValues.getValues(payload).subscribe({
-      next: (resp) => {
+    return this.aemetValues.getValues(payload).pipe(
+      map((resp) => {
         const first = resp.data?.[0];
-        const zonas = first?.prediccion?.zona ?? [];
-        this.items.set(zonas);
-        this.isLoading.set(false);
-      },
-      error: (err) => {
+        return first?.prediccion?.zona ?? [];
+      }),
+      catchError((err: any) => {
         const detail = (err?.error?.detail as string | undefined) ?? '';
         const message = detail || 'Request failed.';
 
         // If apiKey is invalid/expired and backend supports renewal, retry once.
         if (canRetryWithFreshKey && /api_key|apikey|caduc|expired|invalid/i.test(message)) {
           this.apiKeyService.invalidateCache();
-          this.apiKeyService.getApiKey().subscribe({
-            next: (freshKey) => this.postValues(freshKey, false),
-            error: (e) => {
-              this.error.set(e instanceof Error ? e.message : message);
-              this.isLoading.set(false);
-            }
-          });
-          return;
+          return this.apiKeyService.getApiKey().pipe(
+            switchMap((freshKey) => this.fetchZonas$(freshKey, zone, false))
+          );
         }
 
-        this.error.set(message);
-        this.isLoading.set(false);
-      }
-    });
+        return defer(() => {
+          throw new Error(message);
+        });
+      })
+    );
   }
 
   downloadJsonFile() {
