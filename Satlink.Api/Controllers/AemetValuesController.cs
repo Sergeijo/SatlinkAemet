@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 
 using Satlink.Api.Contracts;
 using Satlink.Contracts.Dtos.Aemet;
-using Satlink.Domain.Models;
 using Satlink.Logic;
 
 namespace Satlink.Api.Controllers;
@@ -45,16 +44,16 @@ public sealed class AemetValuesController : ControllerBase
     /// <response code="400">If the request is invalid.</response>
     /// <response code="500">If an unexpected error occurs.</response>
     [HttpPost("values")]
-    [ProducesResponseType(typeof(ApiResponse<List<Request>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<List<MarineZonePredictionDto>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<ApiResponse<List<Request>>>> GetValuesAsync([FromBody] GetAemetValuesRequestDto request, CancellationToken cancellationToken)
+    public async Task<ActionResult<ApiResponse<List<MarineZonePredictionDto>>>> GetValuesAsync([FromBody] GetAemetValuesRequestDto request, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Getting AEMET values for zone {Zone} from {Url}", request.Zone, request.Url);
 
         try
         {
-            Result<List<Request>> result = await _aemetValuesService.GetAemetMarineZonePredictionValuesAsync(
+            Result<List<Satlink.Domain.Models.MarineZonePrediction>> result = await _aemetValuesService.GetAemetMarineZonePredictionValuesAsync(
                 request.ApiKey,
                 request.Url,
                 request.Zone,
@@ -72,7 +71,43 @@ public sealed class AemetValuesController : ControllerBase
                 return BadRequest(problem);
             }
 
-            return Ok(ApiResponse<List<Request>>.Ok(result.Value));
+            List<MarineZonePredictionDto> mapped = new List<MarineZonePredictionDto>(result.Value.Count);
+
+            foreach (Satlink.Domain.Models.MarineZonePrediction item in result.Value)
+            {
+                mapped.Add(new MarineZonePredictionDto
+                {
+                    id = item.Id,
+                    nombre = item.Name,
+                    origen = new OrigenDto
+                    {
+                        productor = item.Origin.Producer,
+                        web = item.Origin.Web,
+                        language = item.Origin.Language,
+                        copyright = item.Origin.Copyright,
+                        notaLegal = item.Origin.LegalNote,
+                        elaborado = item.Origin.ProducedAt,
+                        inicio = item.Origin.StartsAt,
+                        fin = item.Origin.EndsAt
+                    },
+                    situacion = new SituacionDto
+                    {
+                        inicio = item.Situation.StartsAt,
+                        fin = item.Situation.EndsAt,
+                        texto = item.Situation.Text,
+                        id = item.Situation.Id,
+                        nombre = item.Situation.Name
+                    },
+                    prediccion = new PrediccionDto
+                    {
+                        inicio = item.Prediction.StartsAt,
+                        fin = item.Prediction.EndsAt,
+                        zona = MapZones(item)
+                    }
+                });
+            }
+
+            return Ok(ApiResponse<List<MarineZonePredictionDto>>.Ok(mapped));
         }
         catch (Exception ex)
         {
@@ -85,5 +120,22 @@ public sealed class AemetValuesController : ControllerBase
 
             return StatusCode(StatusCodes.Status500InternalServerError, problem);
         }
+    }
+
+    private static List<ZonaDto> MapZones(Satlink.Domain.Models.MarineZonePrediction item)
+    {
+        List<ZonaDto> zones = new List<ZonaDto>();
+
+        foreach (Satlink.Domain.Models.MarineZone zone in item.Prediction.Zones)
+        {
+            zones.Add(new ZonaDto
+            {
+                id = zone.Id,
+                nombre = zone.Name,
+                texto = zone.Text
+            });
+        }
+
+        return zones;
     }
 }

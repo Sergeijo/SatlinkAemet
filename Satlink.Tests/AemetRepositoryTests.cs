@@ -20,7 +20,7 @@ namespace Satlink.Tests
                 // Ensure the DbSet is available for compilation; runtime behavior is not relevant for build fixes
                 try
                 {
-                    context.zonePredictionsItems.Add(new Request { id = "1", nombre = "Test" });
+                    context.zonePredictionsItems.Add(new PersistedRequest { id = "1", nombre = "Test" });
                     context.SaveChanges();
                 }
                 catch { /* ignore runtime provider errors during tests build */ }

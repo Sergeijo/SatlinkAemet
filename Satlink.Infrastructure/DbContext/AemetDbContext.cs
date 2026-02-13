@@ -9,7 +9,7 @@ namespace Satlink.Infrastructure.DI
         {
         }
 
-        public DbSet<Request> zonePredictionsItems { get; set; }
+        public DbSet<PersistedRequest> zonePredictionsItems { get; set; }
 
         public DbSet<UserAccount> UserAccounts { get; set; }
 

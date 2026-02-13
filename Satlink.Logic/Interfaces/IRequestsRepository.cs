@@ -14,23 +14,23 @@ public interface IRequestsRepository
     /// <summary>
     /// Gets all requests.
     /// </summary>
-    Task<List<Request>> GetAllAsync(CancellationToken cancellationToken);
+    Task<List<PersistedRequest>> GetAllAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets a request by identifier.
     /// </summary>
-    Task<Request?> GetByIdAsync(string id, CancellationToken cancellationToken);
+    Task<PersistedRequest?> GetByIdAsync(string id, CancellationToken cancellationToken);
 
     /// <summary>
     /// Creates a new request.
     /// </summary>
-    Task<Request> CreateAsync(Request request, CancellationToken cancellationToken);
+    Task<PersistedRequest> CreateAsync(PersistedRequest request, CancellationToken cancellationToken);
 
     /// <summary>
     /// Updates an existing request.
     /// </summary>
     /// <returns>The updated entity, or null if it does not exist.</returns>
-    Task<Request?> UpdateAsync(string id, Request request, CancellationToken cancellationToken);
+    Task<PersistedRequest?> UpdateAsync(string id, PersistedRequest request, CancellationToken cancellationToken);
 
     /// <summary>
     /// Deletes an existing request.

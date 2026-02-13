@@ -3,6 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using Satlink.Infrastructure;
+
+using Satlink.Infrastructure;
 using Satlink.Logic;
 
 namespace Satlink.Infrastructure.DI
@@ -14,7 +16,10 @@ namespace Satlink.Infrastructure.DI
         {
             services.AddDbContext<AemetDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("SatlinkApp")));
+
+            services.AddHttpClient<IAemetOpenDataClient, AemetOpenDataClient>();
             services.AddScoped<IAemetRepository, AemetRepository>();
+            services.AddScoped<IAemetJsonSerializer, AemetJsonSerializer>();
             services.AddScoped<IRequestsRepository, RequestsRepository>();
             services.AddScoped<IUserAccountRepository, UserAccountRepository>();
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();

@@ -26,7 +26,7 @@ namespace Satlink.Infrastructure
         }
 
         /// <inheritdoc />
-        public async Task<List<Request>> GetAllAemetItemsAsync(CancellationToken cancellationToken)
+        public async Task<List<PersistedRequest>> GetAllAemetItemsAsync(CancellationToken cancellationToken)
         {
             // Load all items.
             return await _aemetDbContext.zonePredictionsItems
@@ -35,7 +35,7 @@ namespace Satlink.Infrastructure
         }
 
         /// <inheritdoc />
-        public async Task<Request?> GetAemetItemByIdAsync(int id, CancellationToken cancellationToken)
+        public async Task<PersistedRequest?> GetAemetItemByIdAsync(int id, CancellationToken cancellationToken)
         {
             // NOTE: Domain model uses string id currently.
             return await _aemetDbContext.zonePredictionsItems
@@ -45,14 +45,14 @@ namespace Satlink.Infrastructure
 
         /// <inheritdoc />
         [System.Obsolete("Use GetAllAemetItemsAsync(CancellationToken).")]
-        public IEnumerable<Request> GetAllAemetItems()
+        public IEnumerable<PersistedRequest> GetAllAemetItems()
         {
             return _aemetDbContext.zonePredictionsItems;
         }
 
         /// <inheritdoc />
         [System.Obsolete("Use GetAemetItemByIdAsync(int, CancellationToken).")]
-        public Task<Request> GetAemetItems(int id)
+        public Task<PersistedRequest> GetAemetItems(int id)
         {
             return _aemetDbContext.zonePredictionsItems.FirstOrDefaultAsync(aemet => true);
         }

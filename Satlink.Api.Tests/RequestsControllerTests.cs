@@ -28,7 +28,7 @@ public sealed class RequestsControllerTests
         IRequestsService service = Substitute.For<IRequestsService>();
         ILogger<RequestsController> logger = Substitute.For<ILogger<RequestsController>>();
 
-        List<Request> items = new List<Request> { new Request { id = "1", nombre = "a" } };
+        List<PersistedRequest> items = new List<PersistedRequest> { new PersistedRequest { id = "1", nombre = "a" } };
         service.GetAllAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(Result.Ok(items)));
 
         RequestsController controller = new RequestsController(service, logger)
@@ -40,11 +40,11 @@ public sealed class RequestsControllerTests
         };
 
         // Act
-        ActionResult<ApiResponse<List<Request>>> result = await controller.GetAllAsync(CancellationToken.None);
+        ActionResult<ApiResponse<List<PersistedRequest>>> result = await controller.GetAllAsync(CancellationToken.None);
 
         // Assert
         OkObjectResult ok = Assert.IsType<OkObjectResult>(result.Result);
-        ApiResponse<List<Request>> payload = Assert.IsType<ApiResponse<List<Request>>>(ok.Value);
+        ApiResponse<List<PersistedRequest>> payload = Assert.IsType<ApiResponse<List<PersistedRequest>>>(ok.Value);
         Assert.Single(payload.Data!);
     }
 
@@ -56,7 +56,7 @@ public sealed class RequestsControllerTests
         ILogger<RequestsController> logger = Substitute.For<ILogger<RequestsController>>();
 
         service.GetByIdAsync("1", Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result.Fail<Request>("Request not found.")));
+            .Returns(Task.FromResult(Result.Fail<PersistedRequest>("Request not found.")));
 
         RequestsController controller = new RequestsController(service, logger)
         {
@@ -67,7 +67,7 @@ public sealed class RequestsControllerTests
         };
 
         // Act
-        ActionResult<ApiResponse<Request>> result = await controller.GetByIdAsync("1", CancellationToken.None);
+        ActionResult<ApiResponse<PersistedRequest>> result = await controller.GetByIdAsync("1", CancellationToken.None);
 
         // Assert
         NotFoundObjectResult notFound = Assert.IsType<NotFoundObjectResult>(result.Result);
@@ -82,8 +82,8 @@ public sealed class RequestsControllerTests
         IRequestsService service = Substitute.For<IRequestsService>();
         ILogger<RequestsController> logger = Substitute.For<ILogger<RequestsController>>();
 
-        Request created = new Request { id = "generated", nombre = "x" };
-        service.CreateAsync(Arg.Any<Request>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(Result.Ok(created)));
+        PersistedRequest created = new PersistedRequest { id = "generated", nombre = "x" };
+        service.CreateAsync(Arg.Any<PersistedRequest>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(Result.Ok(created)));
 
         RequestsController controller = new RequestsController(service, logger)
         {
@@ -96,11 +96,11 @@ public sealed class RequestsControllerTests
         CreateRequestDto dto = new CreateRequestDto { Nombre = "x" };
 
         // Act
-        ActionResult<ApiResponse<Request>> result = await controller.CreateAsync(dto, CancellationToken.None);
+        ActionResult<ApiResponse<PersistedRequest>> result = await controller.CreateAsync(dto, CancellationToken.None);
 
         // Assert
         CreatedAtActionResult createdAt = Assert.IsType<CreatedAtActionResult>(result.Result);
-        ApiResponse<Request> payload = Assert.IsType<ApiResponse<Request>>(createdAt.Value);
+        ApiResponse<PersistedRequest> payload = Assert.IsType<ApiResponse<PersistedRequest>>(createdAt.Value);
         Assert.Equal("generated", payload.Data!.id);
     }
 
@@ -111,8 +111,8 @@ public sealed class RequestsControllerTests
         IRequestsService service = Substitute.For<IRequestsService>();
         ILogger<RequestsController> logger = Substitute.For<ILogger<RequestsController>>();
 
-        service.UpdateAsync("1", Arg.Any<Request>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result.Fail<Request>("Request not found.")));
+        service.UpdateAsync("1", Arg.Any<PersistedRequest>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(Result.Fail<PersistedRequest>("Request not found.")));
 
         RequestsController controller = new RequestsController(service, logger)
         {
@@ -125,7 +125,7 @@ public sealed class RequestsControllerTests
         UpdateRequestDto dto = new UpdateRequestDto { Nombre = "y" };
 
         // Act
-        ActionResult<ApiResponse<Request>> result = await controller.UpdateAsync("1", dto, CancellationToken.None);
+        ActionResult<ApiResponse<PersistedRequest>> result = await controller.UpdateAsync("1", dto, CancellationToken.None);
 
         // Assert
         NotFoundObjectResult notFound = Assert.IsType<NotFoundObjectResult>(result.Result);
