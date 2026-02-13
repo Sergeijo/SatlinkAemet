@@ -16,15 +16,17 @@ namespace Satlink
     class MarineZonePredictionViewModel : ObservableObject
     {
         private readonly IAemetValuesProvider _aemetValuesProvider;
+        private readonly INotificationService _notificationService;
 
         private ObservableCollection<MarineZonePredictionItem> _ZonePredictionsList = new ObservableCollection<MarineZonePredictionItem>();
 
         private readonly IOptions<ApplicationSettings> configuration;
 
-        public MarineZonePredictionViewModel(IAemetValuesProvider aemetValuesProvider, IOptions<ApplicationSettings> appConfig)
+        public MarineZonePredictionViewModel(IAemetValuesProvider aemetValuesProvider, IOptions<ApplicationSettings> appConfig, INotificationService notificationService)
         {
             _aemetValuesProvider = aemetValuesProvider;
             configuration = appConfig;
+			_notificationService = notificationService;
         }
 
 		private bool _isBusy;
@@ -78,7 +80,7 @@ namespace Satlink
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Se ha producido un error en la clase [ZonePredictionViewModel], en la Propiedad [int Zone]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _notificationService.ShowError("ATENCIÓN", $"Se ha producido un error en la clase [ZonePredictionViewModel], en la Propiedad [int Zone]. El error es: {ex.Message}.", ex);
                     Log.WriteLog($"[ZonePredictionViewModel] - Propiedad [int Zone] : {ex.Message}.{ex.StackTrace}");
                 }
             }
@@ -107,7 +109,7 @@ namespace Satlink
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Se ha producido un error en la clase [ZonePredictionViewModel], en la Propiedad [ObservableCollection<DataGridColumn> ColumnCollection]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _notificationService.ShowError("ATENCIÓN", $"Se ha producido un error en la clase [ZonePredictionViewModel], en la Propiedad [ObservableCollection<DataGridColumn> ColumnCollection]. El error es: {ex.Message}.", ex);
                     Log.WriteLog($"[ZonePredictionViewModel] - Propiedad [ObservableCollection<DataGridColumn> ColumnCollection] : {ex.Message}.{ex.StackTrace}");
                 }
             }
@@ -199,19 +201,19 @@ namespace Satlink
                     }
                     else
                     {
-                        MessageBox.Show($"Se ha producido un error al intentar descargar los datos de la Api de Aemet: No items returned", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
+                        _notificationService.ShowError("ATENCIÓN", "Se ha producido un error al intentar descargar los datos de la Api de Aemet: No items returned");
                         Log.WriteLog($"[MarineZonePredictionViewModel] - [DownloadPredictions] : No items returned");
                     }
                 }
                 else
                 {
-                    MessageBox.Show($"Se ha producido un error al intentar descargar los datos de la Api de Aemet: {result.Error}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _notificationService.ShowError("ATENCIÓN", $"Se ha producido un error al intentar descargar los datos de la Api de Aemet: {result.Error}");
                     Log.WriteLog($"[MarineZonePredictionViewModel] - [DownloadPredictions] : Se ha producido un error al intentar descargar los datos de la Api de Aemet: {result.Error}");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Se ha producido un error en la clase [ZonePredictionViewModel], en la Propiedad [internal void DownloadPredictions()]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError("ATENCIÓN", $"Se ha producido un error en la clase [ZonePredictionViewModel], en la Propiedad [internal void DownloadPredictions()]. El error es: {ex.Message}.", ex);
                 Log.WriteLog($"[MarineZonePredictionViewModel] - [DownloadPredictions] : {ex.Message}.{ex.StackTrace}");
             }
 			finally

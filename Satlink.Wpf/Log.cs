@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Windows;
 
 namespace Satlink
 {
@@ -15,7 +14,7 @@ namespace Satlink
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"No se ha podido escribir en el Log. Error: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
+                _ = ex;
             }
         }
     }

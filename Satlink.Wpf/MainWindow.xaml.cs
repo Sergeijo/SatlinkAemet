@@ -13,11 +13,15 @@ namespace Satlink
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly INotificationService _notificationService;
+
         public MainWindow(IAemetValuesProvider aemetValuesProvider, IOptions<ApplicationSettings> appConfig)
         {
             InitializeComponent();
 
-            MarineZonePredictionViewModel VM = new MarineZonePredictionViewModel(aemetValuesProvider, appConfig);
+			_notificationService = new NotificationService();
+
+            MarineZonePredictionViewModel VM = new MarineZonePredictionViewModel(aemetValuesProvider, appConfig, _notificationService);
             this.DataContext = VM;
 
             string version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
@@ -37,7 +41,7 @@ namespace Satlink
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Se ha producido un error en la clase [MainWindow], en el procedimiento [Window_MouseDown]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationService.ShowError("ATENCIÓN", $"Se ha producido un error en la clase [MainWindow], en el procedimiento [Window_MouseDown]. El error es: {ex.Message}.", ex);
                 Log.WriteLog($"[MainWindow] - [Window_MouseDown] : {ex.Message}.{ex.StackTrace}");
             }
         }
