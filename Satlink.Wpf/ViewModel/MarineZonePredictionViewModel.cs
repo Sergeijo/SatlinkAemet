@@ -27,6 +27,21 @@ namespace Satlink
             configuration = appConfig;
         }
 
+		private bool _isBusy;
+		public bool IsBusy
+		{
+			get => _isBusy;
+			set
+			{
+				if (_isBusy == value)
+					return;
+
+				_isBusy = value;
+				RaisePropertyChanged(nameof(IsBusy));
+				CommandManager.InvalidateRequerySuggested();
+			}
+		}
+
         /// <summary>
         /// Gets the AllZonesList
         /// </summary>
@@ -104,7 +119,11 @@ namespace Satlink
         public ObservableCollection<MarineZonePredictionItem> ZonePredictions
         {
             get { return _ZonePredictionsList; }
-            set { _ZonePredictionsList = value; }
+            set
+			{
+				_ZonePredictionsList = value;
+				RaisePropertyChanged(nameof(ZonePredictions));
+			}
         }
 
         /// <summary>
@@ -125,7 +144,7 @@ namespace Satlink
         /// <returns></returns>
         internal bool CanDownloadPredictions()
         {
-            return true;
+			return !IsBusy;
         }
 
         /// <summary>
@@ -135,7 +154,8 @@ namespace Satlink
         {
             try
             {
-                _ZonePredictionsList = new ObservableCollection<MarineZonePredictionItem>();
+                IsBusy = true;
+				ZonePredictions = new ObservableCollection<MarineZonePredictionItem>();
 
                 AemetValuesResult result = await _aemetValuesProvider.GetAemetMarineZonePredictionValuesAsync(configuration.Value?.api_key, configuration.Value?.url, Zone).ConfigureAwait(true);
 
@@ -145,7 +165,7 @@ namespace Satlink
                     {
                         foreach (var zona in result.Value[0].prediccion.zona)
                         {
-                            _ZonePredictionsList.Add(new MarineZonePredictionItem
+							ZonePredictions.Add(new MarineZonePredictionItem
                             {
                                 Id = zona.id,
                                 Nombre = zona.nombre,
@@ -155,9 +175,9 @@ namespace Satlink
 
                         this.ColumnCollection = new ObservableCollection<DataGridColumn>();
 
-                        if (_ZonePredictionsList.Count > 0)
+						if (ZonePredictions.Count > 0)
                         {
-                            foreach (var column in _ZonePredictionsList[0].GetMyProperties())
+							foreach (var column in ZonePredictions[0].GetMyProperties())
                             {
                                 ColumnCollection.Add(new DataGridTextColumn()
                                 {
@@ -176,7 +196,6 @@ namespace Satlink
                         }
 
                         RaisePropertyChanged(nameof(ColumnCollection));
-                        RaisePropertyChanged(nameof(ZonePredictions));
                     }
                     else
                     {
@@ -195,6 +214,10 @@ namespace Satlink
                 MessageBox.Show($"Se ha producido un error en la clase [ZonePredictionViewModel], en la Propiedad [internal void DownloadPredictions()]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
                 Log.WriteLog($"[MarineZonePredictionViewModel] - [DownloadPredictions] : {ex.Message}.{ex.StackTrace}");
             }
+			finally
+			{
+				IsBusy = false;
+			}
         }
     }
 }
