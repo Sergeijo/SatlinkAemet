@@ -56,8 +56,26 @@ public sealed class AemetOpenDataClient : IAemetOpenDataClient
 
         response.EnsureSuccessStatusCode();
 
-        // AEMET sometimes returns an invalid charset in Content-Type; always read bytes and decode as UTF-8.
+        // AEMET sometimes returns an invalid charset in Content-Type; attempt to detect it from the header
+        Encoding encoding = GetEncodingFromContentType(response.Content.Headers.ContentType?.CharSet) ?? Encoding.GetEncoding("iso-8859-1");
         byte[] contentBytes = await response.Content.ReadAsByteArrayAsync(cancellationToken).ConfigureAwait(false);
-        return Encoding.UTF8.GetString(contentBytes);
+        return encoding.GetString(contentBytes);
+    }
+
+    private static Encoding? GetEncodingFromContentType(string? charSet)
+    {
+        if (string.IsNullOrWhiteSpace(charSet))
+        {
+            return null;
+        }
+
+        try
+        {
+            return Encoding.GetEncoding(charSet);
+        }
+        catch (ArgumentException)
+        {
+            return null;
+        }
     }
 }
