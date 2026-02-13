@@ -31,6 +31,7 @@ namespace Satlink
             ConfigureServices(serviceCollection);
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             ServiceProvider = serviceCollection.BuildServiceProvider();
+			ObservableObject.SetLogger(ServiceProvider.GetRequiredService<ILogger<ObservableObject>>());
             var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
             mainWindow.Show();
         }
@@ -47,6 +48,7 @@ namespace Satlink
             serviceCollection.AddLogging(config =>
             {
                 config.AddConsole();
+				config.AddProvider(new FileLoggerProvider(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs"), LogLevel.Information));
             });
 
             serviceCollection.AddHttpClient<IAemetValuesApiClient, AemetValuesApiClient>(client =>
@@ -63,6 +65,8 @@ namespace Satlink
             };
 
             serviceCollection.AddSingleton<IOptions<ApplicationSettings>>(Microsoft.Extensions.Options.Options.Create(appSettings));
+
+			serviceCollection.AddSingleton<INotificationService, NotificationService>();
 
             serviceCollection.AddTransient(typeof(MainWindow));
         }

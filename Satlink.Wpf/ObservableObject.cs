@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Logging;
 using System.Windows;
 
 namespace Satlink
@@ -14,6 +15,13 @@ namespace Satlink
     [Serializable]
     public abstract class ObservableObject : INotifyPropertyChanged
     {
+		private static ILogger? _logger;
+
+		public static void SetLogger(ILogger logger)
+		{
+			_logger = logger;
+		}
+
         /// <summary>
         /// Defines the PropertyChanged
         /// </summary>
@@ -36,8 +44,10 @@ namespace Satlink
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Se ha producido un error en la clase [ObservableObject], en el procedimiento [protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.WriteLog($"[ObservableObject] - [protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)] : {ex.Message}.{ex.StackTrace}");
+				if (_logger != null)
+					_logger.LogError(ex, "[ObservableObject] - OnPropertyChanged failed: {Message}", ex.Message);
+				else
+					Trace.TraceError($"[ObservableObject] - OnPropertyChanged failed: {ex}");
             }
         }
 
@@ -55,8 +65,10 @@ namespace Satlink
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Se ha producido un error en la clase [ObservableObject], en el procedimiento [protected void RaisePropertyChanged<T>(Expression<Func<T>> propertyExpresssion)]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.WriteLog($"[ObservableObject] - [protected void RaisePropertyChanged<T>(Expression<Func<T>> propertyExpresssion)] : {ex.Message}.{ex.StackTrace}");
+				if (_logger != null)
+					_logger.LogError(ex, "[ObservableObject] - RaisePropertyChanged<T> failed: {Message}", ex.Message);
+				else
+					Trace.TraceError($"[ObservableObject] - RaisePropertyChanged<T> failed: {ex}");
             }
         }
 
@@ -76,8 +88,10 @@ namespace Satlink
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Se ha producido un error en la clase [ObservableObject], en el procedimiento [protected void RaisePropertyChanged([CallerMemberName] String propertyName = null)]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.WriteLog($"[ObservableObject] - [protected void RaisePropertyChanged([CallerMemberName] String propertyName = null)] : {ex.Message}.{ex.StackTrace}");
+				if (_logger != null)
+					_logger.LogError(ex, "[ObservableObject] - RaisePropertyChanged failed: {Message}", ex.Message);
+				else
+					Trace.TraceError($"[ObservableObject] - RaisePropertyChanged failed: {ex}");
             }
         }
 
@@ -101,8 +115,10 @@ namespace Satlink
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Se ha producido un error en la clase [ObservableObject], en el procedimiento [public void VerifyPropertyName(String propertyName)]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.WriteLog($"[ObservableObject] - [public void VerifyPropertyName(String propertyName)] : {ex.Message}.{ex.StackTrace}");
+				if (_logger != null)
+					_logger.LogError(ex, "[ObservableObject] - VerifyPropertyName failed: {Message}", ex.Message);
+				else
+					Trace.TraceError($"[ObservableObject] - VerifyPropertyName failed: {ex}");
             }
         }
     }

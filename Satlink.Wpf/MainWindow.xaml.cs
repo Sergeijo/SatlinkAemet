@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 
 using Satlink.ApiClient;
 
@@ -13,11 +14,18 @@ namespace Satlink
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow(IAemetValuesProvider aemetValuesProvider, IOptions<ApplicationSettings> appConfig)
+        private readonly INotificationService _notificationService;
+        private readonly ILogger<MainWindow> _logger;
+        private readonly ILogger _vmLogger;
+
+        public MainWindow(IAemetValuesProvider aemetValuesProvider, IOptions<ApplicationSettings> appConfig, INotificationService notificationService, ILogger<MainWindow> logger, ILoggerFactory loggerFactory)
         {
             InitializeComponent();
+			_notificationService = notificationService;
+			_logger = logger;
+			_vmLogger = loggerFactory.CreateLogger(typeof(MarineZonePredictionViewModel).FullName ?? nameof(MarineZonePredictionViewModel));
 
-            MarineZonePredictionViewModel VM = new MarineZonePredictionViewModel(aemetValuesProvider, appConfig);
+            MarineZonePredictionViewModel VM = new MarineZonePredictionViewModel(aemetValuesProvider, appConfig, _notificationService, _vmLogger);
             this.DataContext = VM;
 
             string version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
@@ -37,8 +45,8 @@ namespace Satlink
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Se ha producido un error en la clase [MainWindow], en el procedimiento [Window_MouseDown]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.WriteLog($"[MainWindow] - [Window_MouseDown] : {ex.Message}.{ex.StackTrace}");
+                _notificationService.ShowError("ATENCIÓN", $"Se ha producido un error en la clase [MainWindow], en el procedimiento [Window_MouseDown]. El error es: {ex.Message}.", ex);
+				_logger.LogError(ex, "[MainWindow] - [Window_MouseDown] : {Message}", ex.Message);
             }
         }
     }

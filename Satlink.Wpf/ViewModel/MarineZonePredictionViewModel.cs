@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 
 using Satlink.ApiClient;
 
@@ -16,16 +17,35 @@ namespace Satlink
     class MarineZonePredictionViewModel : ObservableObject
     {
         private readonly IAemetValuesProvider _aemetValuesProvider;
+        private readonly INotificationService _notificationService;
+		private readonly ILogger _logger;
 
         private ObservableCollection<MarineZonePredictionItem> _ZonePredictionsList = new ObservableCollection<MarineZonePredictionItem>();
 
         private readonly IOptions<ApplicationSettings> configuration;
 
-        public MarineZonePredictionViewModel(IAemetValuesProvider aemetValuesProvider, IOptions<ApplicationSettings> appConfig)
+        public MarineZonePredictionViewModel(IAemetValuesProvider aemetValuesProvider, IOptions<ApplicationSettings> appConfig, INotificationService notificationService, ILogger logger)
         {
             _aemetValuesProvider = aemetValuesProvider;
             configuration = appConfig;
+			_notificationService = notificationService;
+			_logger = logger;
         }
+
+		private bool _isBusy;
+		public bool IsBusy
+		{
+			get => _isBusy;
+			set
+			{
+				if (_isBusy == value)
+					return;
+
+				_isBusy = value;
+				RaisePropertyChanged(nameof(IsBusy));
+				CommandManager.InvalidateRequerySuggested();
+			}
+		}
 
         /// <summary>
         /// Gets the AllZonesList
@@ -63,8 +83,8 @@ namespace Satlink
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Se ha producido un error en la clase [ZonePredictionViewModel], en la Propiedad [int Zone]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
-                    Log.WriteLog($"[ZonePredictionViewModel] - Propiedad [int Zone] : {ex.Message}.{ex.StackTrace}");
+                    _notificationService.ShowError("ATENCIÓN", $"Se ha producido un error en la clase [ZonePredictionViewModel], en la Propiedad [int Zone]. El error es: {ex.Message}.", ex);
+					_logger.LogError(ex, "[ZonePredictionViewModel] - Propiedad [int Zone] : {Message}", ex.Message);
                 }
             }
         }
@@ -92,8 +112,8 @@ namespace Satlink
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Se ha producido un error en la clase [ZonePredictionViewModel], en la Propiedad [ObservableCollection<DataGridColumn> ColumnCollection]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
-                    Log.WriteLog($"[ZonePredictionViewModel] - Propiedad [ObservableCollection<DataGridColumn> ColumnCollection] : {ex.Message}.{ex.StackTrace}");
+                    _notificationService.ShowError("ATENCIÓN", $"Se ha producido un error en la clase [ZonePredictionViewModel], en la Propiedad [ObservableCollection<DataGridColumn> ColumnCollection]. El error es: {ex.Message}.", ex);
+					_logger.LogError(ex, "[ZonePredictionViewModel] - Propiedad [ColumnCollection] : {Message}", ex.Message);
                 }
             }
         }
@@ -104,7 +124,11 @@ namespace Satlink
         public ObservableCollection<MarineZonePredictionItem> ZonePredictions
         {
             get { return _ZonePredictionsList; }
-            set { _ZonePredictionsList = value; }
+            set
+			{
+				_ZonePredictionsList = value;
+				RaisePropertyChanged(nameof(ZonePredictions));
+			}
         }
 
         /// <summary>
@@ -125,7 +149,7 @@ namespace Satlink
         /// <returns></returns>
         internal bool CanDownloadPredictions()
         {
-            return true;
+			return !IsBusy;
         }
 
         /// <summary>
@@ -135,7 +159,8 @@ namespace Satlink
         {
             try
             {
-                _ZonePredictionsList = new ObservableCollection<MarineZonePredictionItem>();
+                IsBusy = true;
+				ZonePredictions = new ObservableCollection<MarineZonePredictionItem>();
 
                 AemetValuesResult result = await _aemetValuesProvider.GetAemetMarineZonePredictionValuesAsync(configuration.Value?.api_key, configuration.Value?.url, Zone).ConfigureAwait(true);
 
@@ -145,7 +170,7 @@ namespace Satlink
                     {
                         foreach (var zona in result.Value[0].prediccion.zona)
                         {
-                            _ZonePredictionsList.Add(new MarineZonePredictionItem
+							ZonePredictions.Add(new MarineZonePredictionItem
                             {
                                 Id = zona.id,
                                 Nombre = zona.nombre,
@@ -155,9 +180,9 @@ namespace Satlink
 
                         this.ColumnCollection = new ObservableCollection<DataGridColumn>();
 
-                        if (_ZonePredictionsList.Count > 0)
+						if (ZonePredictions.Count > 0)
                         {
-                            foreach (var column in _ZonePredictionsList[0].GetMyProperties())
+							foreach (var column in ZonePredictions[0].GetMyProperties())
                             {
                                 ColumnCollection.Add(new DataGridTextColumn()
                                 {
@@ -176,25 +201,28 @@ namespace Satlink
                         }
 
                         RaisePropertyChanged(nameof(ColumnCollection));
-                        RaisePropertyChanged(nameof(ZonePredictions));
                     }
                     else
                     {
-                        MessageBox.Show($"Se ha producido un error al intentar descargar los datos de la Api de Aemet: No items returned", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
-                        Log.WriteLog($"[MarineZonePredictionViewModel] - [DownloadPredictions] : No items returned");
+                        _notificationService.ShowError("ATENCIÓN", "Se ha producido un error al intentar descargar los datos de la Api de Aemet: No items returned");
+						_logger.LogError("[MarineZonePredictionViewModel] - [DownloadPredictions] : No items returned");
                     }
                 }
                 else
                 {
-                    MessageBox.Show($"Se ha producido un error al intentar descargar los datos de la Api de Aemet: {result.Error}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
-                    Log.WriteLog($"[MarineZonePredictionViewModel] - [DownloadPredictions] : Se ha producido un error al intentar descargar los datos de la Api de Aemet: {result.Error}");
+                    _notificationService.ShowError("ATENCIÓN", $"Se ha producido un error al intentar descargar los datos de la Api de Aemet: {result.Error}");
+					_logger.LogError("[MarineZonePredictionViewModel] - [DownloadPredictions] : {Error}", result.Error);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Se ha producido un error en la clase [ZonePredictionViewModel], en la Propiedad [internal void DownloadPredictions()]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.WriteLog($"[MarineZonePredictionViewModel] - [DownloadPredictions] : {ex.Message}.{ex.StackTrace}");
+                _notificationService.ShowError("ATENCIÓN", $"Se ha producido un error en la clase [ZonePredictionViewModel], en la Propiedad [internal void DownloadPredictions()]. El error es: {ex.Message}.", ex);
+				_logger.LogError(ex, "[MarineZonePredictionViewModel] - [DownloadPredictions] : {Message}", ex.Message);
             }
+			finally
+			{
+				IsBusy = false;
+			}
         }
     }
 }

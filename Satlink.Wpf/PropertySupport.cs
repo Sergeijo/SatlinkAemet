@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -49,7 +50,7 @@ namespace Satlink
             catch (Exception ex)
             {
                 MessageBox.Show($"Se ha producido un error en la clase [PropertySupport], en el procedimiento [public static String ExtractPropertyName<T>(Expression<Func<T>> propertyExpresssion)]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.WriteLog($"[PropertySupport] - [public static String ExtractPropertyName<T>(Expression<Func<T>> propertyExpresssion)] : {ex.Message}.{ex.StackTrace}");
+				Trace.TraceError($"[PropertySupport] - ExtractPropertyName failed: {ex}");
                 return null;
             }
         }
