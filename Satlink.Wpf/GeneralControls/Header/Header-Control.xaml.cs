@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -8,7 +9,7 @@ namespace Satlink.GeneralControls.Header
 {
 
     /// <summary>
-    /// L骻ica de interacci髇 para Header_Control.xaml
+    /// L贸gica de interacci贸n para Header_Control.xaml
     /// </summary>
     public partial class Header_Control : UserControl
     {
@@ -26,8 +27,8 @@ namespace Satlink.GeneralControls.Header
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Se ha producido un error en la clase [Header_Control], en la Propiedad [String Title]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCI覰", MessageBoxButton.OK, MessageBoxImage.Error);
-                    Log.WriteLog($"[Header_Control] - Propiedad [String Title] : {ex.Message}.{ex.StackTrace}");
+                    MessageBox.Show($"Se ha producido un error en la clase [Header_Control], en la Propiedad [String Title]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCI脫N", MessageBoxButton.OK, MessageBoxImage.Error);
+					Trace.TraceError($"[Header_Control] - Title set failed: {ex}");
                 }
             }
         }
@@ -49,8 +50,8 @@ namespace Satlink.GeneralControls.Header
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Se ha producido un error en la clase [Header_Control], en el procedimiento [Header_Control]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCI覰", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.WriteLog($"[Header_Control] - [Header_Control] : {ex.Message}.{ex.StackTrace}");
+                MessageBox.Show($"Se ha producido un error en la clase [Header_Control], en el procedimiento [Header_Control]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCI脫N", MessageBoxButton.OK, MessageBoxImage.Error);
+				Trace.TraceError($"[Header_Control] - ctor failed: {ex}");
             }
         }
 
@@ -67,13 +68,13 @@ namespace Satlink.GeneralControls.Header
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Se ha producido un error en la clase [Header_Control], en el procedimiento [UserControl_Loaded]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCI覰", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.WriteLog($"[Header_Control] - [UserControl_Loaded] : {ex.Message}.{ex.StackTrace}");
+                MessageBox.Show($"Se ha producido un error en la clase [Header_Control], en el procedimiento [UserControl_Loaded]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCI脫N", MessageBoxButton.OK, MessageBoxImage.Error);
+				Trace.TraceError($"[Header_Control] - UserControl_Loaded failed: {ex}");
             }
         }
 
         /// <summary>
-        /// Control de titleBar que permite mover la ventana de la aplicaci髇
+        /// Control de titleBar que permite mover la ventana de la aplicaci贸n
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -85,13 +86,13 @@ namespace Satlink.GeneralControls.Header
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Se ha producido un error en la clase [Header_Control], en el procedimiento [titleBar_MouseLeftButtonDown]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCI覰", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.WriteLog($"[Header_Control] - [titleBar_MouseLeftButtonDown] : {ex.Message}.{ex.StackTrace}");
+                MessageBox.Show($"Se ha producido un error en la clase [Header_Control], en el procedimiento [titleBar_MouseLeftButtonDown]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCI脫N", MessageBoxButton.OK, MessageBoxImage.Error);
+				Trace.TraceError($"[Header_Control] - titleBar_MouseLeftButtonDown failed: {ex}");
             }
         }
 
         /// <summary>
-        /// Control de boton que al clicarlo cierra la aplicaci髇
+        /// Control de boton que al clicarlo cierra la aplicaci贸n
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -103,13 +104,13 @@ namespace Satlink.GeneralControls.Header
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Se ha producido un error en la clase [Header_Control], en el procedimiento [closeButton_Click]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCI覰", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.WriteLog($"[Header_Control] - [closeButton_Click] : {ex.Message}.{ex.StackTrace}");
+                MessageBox.Show($"Se ha producido un error en la clase [Header_Control], en el procedimiento [closeButton_Click]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCI脫N", MessageBoxButton.OK, MessageBoxImage.Error);
+				Trace.TraceError($"[Header_Control] - closeButton_Click failed: {ex}");
             }
         }
 
         /// <summary>
-        /// Control de boton que al clicarlo minimiza la aplicaci髇
+        /// Control de boton que al clicarlo minimiza la aplicaci贸n
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -121,13 +122,13 @@ namespace Satlink.GeneralControls.Header
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Se ha producido un error en la clase [Header_Control], en el procedimiento [minButton_Click]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCI覰", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.WriteLog($"[Header_Control] - [minButton_Click] : {ex.Message}.{ex.StackTrace}");
+                MessageBox.Show($"Se ha producido un error en la clase [Header_Control], en el procedimiento [minButton_Click]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCI脫N", MessageBoxButton.OK, MessageBoxImage.Error);
+				Trace.TraceError($"[Header_Control] - minButton_Click failed: {ex}");
             }
         }
 
         /// <summary>
-        /// Control de boton que al clicarlo maximiza o pone a tama駉 normal la aplicaci髇
+        /// Control de boton que al clicarlo maximiza o pone a tama帽o normal la aplicaci贸n
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -146,8 +147,8 @@ namespace Satlink.GeneralControls.Header
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Se ha producido un error en la clase [Header_Control], en el procedimiento [MaxButton_Click]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCI覰", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.WriteLog($"[Header_Control] - [MaxButton_Click] : {ex.Message}.{ex.StackTrace}");
+                MessageBox.Show($"Se ha producido un error en la clase [Header_Control], en el procedimiento [MaxButton_Click]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCI脫N", MessageBoxButton.OK, MessageBoxImage.Error);
+				Trace.TraceError($"[Header_Control] - MaxButton_Click failed: {ex}");
             }
         }
 
@@ -170,19 +171,19 @@ namespace Satlink.GeneralControls.Header
                     }
                     else
                     {
-                        MessageBox.Show($"No se encuentra el archivo de ayuda en la ruta: {pdfPath}", "ATENCI覰", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                        MessageBox.Show($"No se encuentra el archivo de ayuda en la ruta: {pdfPath}", "ATENCI脫N", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                     }
                 }
                 else
                 {
-                    MessageBox.Show("No se encuentra el archivo de ayuda.", "ATENCI覰", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    MessageBox.Show("No se encuentra el archivo de ayuda.", "ATENCI脫N", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 }
 
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Se ha producido un error en la clase [Header_Control], en el procedimiento [helpButton_Click]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCI覰", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.WriteLog($"[Header_Control] - [helpButton_Click] : {ex.Message}.{ex.StackTrace}");
+                MessageBox.Show($"Se ha producido un error en la clase [Header_Control], en el procedimiento [helpButton_Click]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCI脫N", MessageBoxButton.OK, MessageBoxImage.Error);
+				Trace.TraceError($"[Header_Control] - helpButton_Click failed: {ex}");
             }
         }
     }

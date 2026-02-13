@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -96,7 +97,7 @@ namespace Satlink
             catch (Exception ex)
             {
                 MessageBox.Show($"Se ha producido un error en la clase [DataGridColumnsBehavior], en el procedimiento [BindableColumnsPropertyChanged]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.WriteLog($"[DataGridColumnsBehavior] - [BindableColumnsPropertyChanged] : {ex.Message}.{ex.StackTrace}");
+				Trace.TraceError($"[DataGridColumnsBehavior] - BindableColumnsPropertyChanged failed: {ex}");
             }
         }
 
@@ -114,7 +115,7 @@ namespace Satlink
             catch (Exception ex)
             {
                 MessageBox.Show($"Se ha producido un error en la clase [DataGridColumnsBehavior], en el procedimiento [SetBindableColumns]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.WriteLog($"[DataGridColumnsBehavior] - [SetBindableColumns] : {ex.Message}.{ex.StackTrace}");
+				Trace.TraceError($"[DataGridColumnsBehavior] - SetBindableColumns failed: {ex}");
             }
         }
 
@@ -132,7 +133,7 @@ namespace Satlink
             catch (Exception ex)
             {
                 MessageBox.Show($"Se ha producido un error en la clase [DataGridColumnsBehavior], en el procedimiento [GetBindableColumns]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.WriteLog($"[DataGridColumnsBehavior] - [GetBindableColumns] : {ex.Message}.{ex.StackTrace}");
+				Trace.TraceError($"[DataGridColumnsBehavior] - GetBindableColumns failed: {ex}");
                 return null;
             }
         }
