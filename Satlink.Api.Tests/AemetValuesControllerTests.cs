@@ -27,7 +27,7 @@ public sealed class AemetValuesControllerTests
         IAemetValuesService service = Substitute.For<IAemetValuesService>();
         Microsoft.Extensions.Logging.ILogger<AemetValuesController> logger = Substitute.For<Microsoft.Extensions.Logging.ILogger<AemetValuesController>>();
 
-        List<Request> expected = new List<Request>();
+        List<MarineZonePrediction> expected = new List<MarineZonePrediction>();
 
         service
             .GetAemetMarineZonePredictionValuesAsync("key", "https://example.com", 1, Arg.Any<CancellationToken>())
@@ -39,11 +39,11 @@ public sealed class AemetValuesControllerTests
         GetAemetValuesRequestDto dto = new GetAemetValuesRequestDto { ApiKey = "key", Url = "https://example.com", Zone = 1 };
 
         // Act
-        ActionResult<ApiResponse<List<Request>>> actionResult = await controller.GetValuesAsync(dto, CancellationToken.None);
+        ActionResult<ApiResponse<List<MarineZonePrediction>>> actionResult = await controller.GetValuesAsync(dto, CancellationToken.None);
 
         // Assert
         OkObjectResult ok = Assert.IsType<OkObjectResult>(actionResult.Result);
-        ApiResponse<List<Request>> response = Assert.IsType<ApiResponse<List<Request>>>(ok.Value);
+        ApiResponse<List<MarineZonePrediction>> response = Assert.IsType<ApiResponse<List<MarineZonePrediction>>>(ok.Value);
         Assert.Same(expected, response.Data);
 
         await service.Received(1).GetAemetMarineZonePredictionValuesAsync("key", "https://example.com", 1, Arg.Any<CancellationToken>());
@@ -58,7 +58,7 @@ public sealed class AemetValuesControllerTests
 
         service
             .GetAemetMarineZonePredictionValuesAsync("key", "https://example.com", 1, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result.Fail<List<Request>>("boom")));
+            .Returns(Task.FromResult(Result.Fail<List<MarineZonePrediction>>("boom")));
 
         AemetValuesController controller = new AemetValuesController(service, logger);
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
@@ -66,7 +66,7 @@ public sealed class AemetValuesControllerTests
         GetAemetValuesRequestDto dto = new GetAemetValuesRequestDto { ApiKey = "key", Url = "https://example.com", Zone = 1 };
 
         // Act
-        ActionResult<ApiResponse<List<Request>>> actionResult = await controller.GetValuesAsync(dto, CancellationToken.None);
+        ActionResult<ApiResponse<List<MarineZonePrediction>>> actionResult = await controller.GetValuesAsync(dto, CancellationToken.None);
 
         // Assert
         Assert.IsType<BadRequestObjectResult>(actionResult.Result);

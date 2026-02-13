@@ -19,30 +19,30 @@ internal sealed class RequestsRepository : IRequestsRepository
         _dbContext = dbContext;
     }
 
-    public Task<List<Request>> GetAllAsync(CancellationToken cancellationToken)
+    public Task<List<PersistedRequest>> GetAllAsync(CancellationToken cancellationToken)
     {
         return _dbContext.zonePredictionsItems
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
 
-    public Task<Request?> GetByIdAsync(string id, CancellationToken cancellationToken)
+    public Task<PersistedRequest?> GetByIdAsync(string id, CancellationToken cancellationToken)
     {
         return _dbContext.zonePredictionsItems
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.id == id, cancellationToken);
     }
 
-    public async Task<Request> CreateAsync(Request request, CancellationToken cancellationToken)
+    public async Task<PersistedRequest> CreateAsync(PersistedRequest request, CancellationToken cancellationToken)
     {
         await _dbContext.zonePredictionsItems.AddAsync(request, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
         return request;
     }
 
-    public async Task<Request?> UpdateAsync(string id, Request request, CancellationToken cancellationToken)
+    public async Task<PersistedRequest?> UpdateAsync(string id, PersistedRequest request, CancellationToken cancellationToken)
     {
-        Request? existing = await _dbContext.zonePredictionsItems
+        PersistedRequest? existing = await _dbContext.zonePredictionsItems
             .FirstOrDefaultAsync(x => x.id == id, cancellationToken);
 
         if (existing is null)
@@ -61,7 +61,7 @@ internal sealed class RequestsRepository : IRequestsRepository
 
     public async Task<bool> DeleteAsync(string id, CancellationToken cancellationToken)
     {
-        Request? existing = await _dbContext.zonePredictionsItems
+        PersistedRequest? existing = await _dbContext.zonePredictionsItems
             .FirstOrDefaultAsync(x => x.id == id, cancellationToken);
 
         if (existing is null)

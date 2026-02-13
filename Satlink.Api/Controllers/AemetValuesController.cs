@@ -45,16 +45,16 @@ public sealed class AemetValuesController : ControllerBase
     /// <response code="400">If the request is invalid.</response>
     /// <response code="500">If an unexpected error occurs.</response>
     [HttpPost("values")]
-    [ProducesResponseType(typeof(ApiResponse<List<Request>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<List<MarineZonePrediction>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<ApiResponse<List<Request>>>> GetValuesAsync([FromBody] GetAemetValuesRequestDto request, CancellationToken cancellationToken)
+    public async Task<ActionResult<ApiResponse<List<MarineZonePrediction>>>> GetValuesAsync([FromBody] GetAemetValuesRequestDto request, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Getting AEMET values for zone {Zone} from {Url}", request.Zone, request.Url);
 
         try
         {
-            Result<List<Request>> result = await _aemetValuesService.GetAemetMarineZonePredictionValuesAsync(
+            Result<List<MarineZonePrediction>> result = await _aemetValuesService.GetAemetMarineZonePredictionValuesAsync(
                 request.ApiKey,
                 request.Url,
                 request.Zone,
@@ -72,7 +72,7 @@ public sealed class AemetValuesController : ControllerBase
                 return BadRequest(problem);
             }
 
-            return Ok(ApiResponse<List<Request>>.Ok(result.Value));
+            return Ok(ApiResponse<List<MarineZonePrediction>>.Ok(result.Value));
         }
         catch (Exception ex)
         {

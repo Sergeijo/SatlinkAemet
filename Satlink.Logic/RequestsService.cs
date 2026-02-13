@@ -24,11 +24,11 @@ public sealed class RequestsService : IRequestsService
     }
 
     /// <inheritdoc />
-    public async Task<Result<List<Request>>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<Result<List<PersistedRequest>>> GetAllAsync(CancellationToken cancellationToken)
     {
         try
         {
-            List<Request> items = await _requestsRepository.GetAllAsync(cancellationToken);
+            List<PersistedRequest> items = await _requestsRepository.GetAllAsync(cancellationToken);
 
             // Return items.
             return Result.Ok(items);
@@ -36,33 +36,33 @@ public sealed class RequestsService : IRequestsService
         catch (Exception ex)
         {
             // Map unexpected exception.
-            return Result.Fail<List<Request>>("Error while retrieving items: " + ex.Message);
+            return Result.Fail<List<PersistedRequest>>("Error while retrieving items: " + ex.Message);
         }
     }
 
     /// <inheritdoc />
-    public async Task<Result<Request>> GetByIdAsync(string id, CancellationToken cancellationToken)
+    public async Task<Result<PersistedRequest>> GetByIdAsync(string id, CancellationToken cancellationToken)
     {
         try
         {
-            Request? entity = await _requestsRepository.GetByIdAsync(id, cancellationToken);
+            PersistedRequest? entity = await _requestsRepository.GetByIdAsync(id, cancellationToken);
 
             if (entity is null)
             {
                 // Return failure if not found.
-                return Result.Fail<Request>("Request not found.");
+                return Result.Fail<PersistedRequest>("Request not found.");
             }
 
             return Result.Ok(entity);
         }
         catch (Exception ex)
         {
-            return Result.Fail<Request>("Error while retrieving item: " + ex.Message);
+            return Result.Fail<PersistedRequest>("Error while retrieving item: " + ex.Message);
         }
     }
 
     /// <inheritdoc />
-    public async Task<Result<Request>> CreateAsync(Request request, CancellationToken cancellationToken)
+    public async Task<Result<PersistedRequest>> CreateAsync(PersistedRequest request, CancellationToken cancellationToken)
     {
         try
         {
@@ -72,31 +72,31 @@ public sealed class RequestsService : IRequestsService
                 request.id = Guid.NewGuid().ToString("N");
             }
 
-            Request created = await _requestsRepository.CreateAsync(request, cancellationToken);
+            PersistedRequest created = await _requestsRepository.CreateAsync(request, cancellationToken);
 
             // Return created.
             return Result.Ok(created);
         }
         catch (Exception ex)
         {
-            return Result.Fail<Request>("Error while creating item: " + ex.Message);
+            return Result.Fail<PersistedRequest>("Error while creating item: " + ex.Message);
         }
     }
 
     /// <inheritdoc />
-    public async Task<Result<Request>> UpdateAsync(string id, Request request, CancellationToken cancellationToken)
+    public async Task<Result<PersistedRequest>> UpdateAsync(string id, PersistedRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            Request? updated = await _requestsRepository.UpdateAsync(id, request, cancellationToken);
+            PersistedRequest? updated = await _requestsRepository.UpdateAsync(id, request, cancellationToken);
 
             return updated is null
-                ? Result.Fail<Request>("Request not found.")
+                ? Result.Fail<PersistedRequest>("Request not found.")
                 : Result.Ok(updated);
         }
         catch (Exception ex)
         {
-            return Result.Fail<Request>("Error while updating item: " + ex.Message);
+            return Result.Fail<PersistedRequest>("Error while updating item: " + ex.Message);
         }
     }
 

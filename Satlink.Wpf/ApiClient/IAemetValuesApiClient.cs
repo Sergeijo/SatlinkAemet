@@ -18,5 +18,5 @@ public interface IAemetValuesApiClient
     /// <param name="request">The request payload.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The retrieved items.</returns>
-    Task<List<Request>> GetValuesAsync(GetAemetValuesRequestDto request, CancellationToken cancellationToken = default);
+    Task<List<MarineZonePrediction>> GetValuesAsync(GetAemetValuesRequestDto request, CancellationToken cancellationToken = default);
 }
