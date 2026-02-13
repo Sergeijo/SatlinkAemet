@@ -45,7 +45,7 @@ public sealed class AemetValuesProvider : IAemetValuesProvider
                 Zone = zone
             };
 
-            List<MarineZonePrediction> items = await _apiClient.GetValuesAsync(request).ConfigureAwait(false);
+            List<MarineZonePredictionDto> items = await _apiClient.GetValuesAsync(request).ConfigureAwait(false);
 
             return AemetValuesResult.Ok(items);
         }

@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 using Satlink.Contracts.Dtos.Aemet;
 using Satlink.Api.Contracts;
-using Satlink.Domain.Models;
 
 namespace Satlink.ApiClient;
 
@@ -28,17 +27,17 @@ public sealed class AemetValuesApiClient : IAemetValuesApiClient
     }
 
     /// <inheritdoc />
-    public async Task<List<MarineZonePrediction>> GetValuesAsync(GetAemetValuesRequestDto request, CancellationToken cancellationToken = default)
+    public async Task<List<MarineZonePredictionDto>> GetValuesAsync(GetAemetValuesRequestDto request, CancellationToken cancellationToken = default)
     {
         using HttpResponseMessage response = await _httpClient.PostAsJsonAsync("api/aemetvalues/values", request, cancellationToken).ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
 
-        ApiResponse<List<MarineZonePrediction>>? payload = await response.Content.ReadFromJsonAsync<ApiResponse<List<MarineZonePrediction>>>(cancellationToken).ConfigureAwait(false);
+        ApiResponse<List<MarineZonePredictionDto>>? payload = await response.Content.ReadFromJsonAsync<ApiResponse<List<MarineZonePredictionDto>>>(cancellationToken).ConfigureAwait(false);
 
         if (payload?.Data is null)
         {
-            return new List<MarineZonePrediction>();
+            return new List<MarineZonePredictionDto>();
         }
 
         return payload.Data;

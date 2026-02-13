@@ -143,13 +143,13 @@ namespace Satlink
                 {
                     if (result.Value != null)
                     {
-                        foreach (var zona in result.Value)
+                        foreach (var zona in result.Value[0].prediccion.zona)
                         {
                             _ZonePredictionsList.Add(new MarineZonePredictionItem
                             {
-                                Id = int.TryParse(zona.Id, out int parsedId) ? parsedId : 0,
-                                Nombre = zona.Name,
-                                Texto = string.Empty
+                                Id = zona.id,
+                                Nombre = zona.nombre,
+                                Texto = zona.texto
                             });
                         }
 
