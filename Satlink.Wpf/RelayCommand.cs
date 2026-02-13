@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -40,7 +40,7 @@ namespace Satlink
             catch (Exception ex)
             {
                 MessageBox.Show($"Se ha producido un error en la clase [RelayCommand<T>], en el procedimiento [public RelayCommand(Action<T> execute, Predicate<T> canExecute)]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.WriteLog($"[RelayCommand<T>] - [public RelayCommand(Action<T> execute, Predicate<T> canExecute)] : {ex.Message}.{ex.StackTrace}");
+				Trace.TraceError($"[RelayCommand<T>] - ctor failed: {ex}");
             }
         }
 
@@ -68,7 +68,7 @@ namespace Satlink
             catch (Exception ex)
             {
                 MessageBox.Show($"Se ha producido un error en la clase [RelayCommand<T>], en el procedimiento [public Boolean CanExecute(Object parameter)]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.WriteLog($"[RelayCommand<T>] - [public Boolean CanExecute(Object parameter)] : {ex.Message}.{ex.StackTrace}");
+				Trace.TraceError($"[RelayCommand<T>] - CanExecute failed: {ex}");
 
                 return false;
             }
@@ -83,7 +83,7 @@ namespace Satlink
             catch (Exception ex)
             {
                 MessageBox.Show($"Se ha producido un error en la clase [RelayCommand<T>], en el procedimiento [public void Execute(Object parameter)]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.WriteLog($"[RelayCommand<T>] - [public void Execute(Object parameter)] : {ex.Message}.{ex.StackTrace}");
+				Trace.TraceError($"[RelayCommand<T>] - Execute failed: {ex}");
             }
         }
 
@@ -123,7 +123,7 @@ namespace Satlink
             catch (Exception ex)
             {
                 MessageBox.Show($"Se ha producido un error en la clase [and], en el procedimiento [public RelayCommand(Action execute, Func<Boolean> canExecute)]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.WriteLog($"[RelayCommand<T>] - [public RelayCommand(Action execute, Func<Boolean> canExecute)] : {ex.Message}.{ex.StackTrace}");
+				Trace.TraceError($"[RelayCommand] - ctor failed: {ex}");
             }
         }
 
@@ -151,7 +151,7 @@ namespace Satlink
             catch (Exception ex)
             {
                 MessageBox.Show($"Se ha producido un error en la clase [and], en el procedimiento [public Boolean CanExecute(Object parameter)]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.WriteLog($"[RelayCommand<T>] - [public Boolean CanExecute(Object parameter)] : {ex.Message}.{ex.StackTrace}");
+				Trace.TraceError($"[RelayCommand] - CanExecute failed: {ex}");
 
                 return false;
             }
@@ -166,7 +166,7 @@ namespace Satlink
             catch (Exception ex)
             {
                 MessageBox.Show($"Se ha producido un error en la clase [and], en el procedimiento [public void Execute(Object parameter)]. El error es: {ex.Message}. {ex.InnerException?.ToString()}", "ATENCIÓN", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.WriteLog($"[RelayCommand<T>] - [public void Execute(Object parameter)] : {ex.Message}.{ex.StackTrace}");
+				Trace.TraceError($"[RelayCommand] - Execute failed: {ex}");
             }
         }
 
