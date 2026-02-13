@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using Satlink.Logic;
 
-namespace Satlink.Api.Services;
+namespace Satlink.Infrastructure;
 
 /// <summary>
 /// HTTP adapter for AEMET OpenData.

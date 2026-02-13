@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Satlink.Contracts.Dtos.Aemet;
-using Satlink.Domain.Models;
 
 namespace Satlink.ApiClient;
 
@@ -18,5 +17,5 @@ public interface IAemetValuesApiClient
     /// <param name="request">The request payload.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The retrieved items.</returns>
-    Task<List<Request>> GetValuesAsync(GetAemetValuesRequestDto request, CancellationToken cancellationToken = default);
+    Task<List<MarineZonePredictionDto>> GetValuesAsync(GetAemetValuesRequestDto request, CancellationToken cancellationToken = default);
 }

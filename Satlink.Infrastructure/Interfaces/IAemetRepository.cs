@@ -16,7 +16,7 @@ namespace Satlink.Infrastructure
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The items.</returns>
-        Task<List<Request>> GetAllAemetItemsAsync(CancellationToken cancellationToken);
+        Task<List<PersistedRequest>> GetAllAemetItemsAsync(CancellationToken cancellationToken);
 
         /// <summary>
         /// Gets an item by id.
@@ -24,14 +24,14 @@ namespace Satlink.Infrastructure
         /// <param name="id">The identifier.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The item, or null if not found.</returns>
-        Task<Request?> GetAemetItemByIdAsync(int id, CancellationToken cancellationToken);
+        Task<PersistedRequest?> GetAemetItemByIdAsync(int id, CancellationToken cancellationToken);
 
         /// <summary>
         /// Gets all items.
         /// </summary>
         /// <returns>The items.</returns>
         [System.Obsolete("Use GetAllAemetItemsAsync(CancellationToken).")]
-        IEnumerable<Request> GetAllAemetItems();
+        IEnumerable<PersistedRequest> GetAllAemetItems();
 
         /// <summary>
         /// Gets an item by id.
@@ -39,6 +39,6 @@ namespace Satlink.Infrastructure
         /// <param name="id">The identifier.</param>
         /// <returns>The item.</returns>
         [System.Obsolete("Use GetAemetItemByIdAsync(int, CancellationToken).")]
-        Task<Request> GetAemetItems(int id);
+        Task<PersistedRequest> GetAemetItems(int id);
     }
 }

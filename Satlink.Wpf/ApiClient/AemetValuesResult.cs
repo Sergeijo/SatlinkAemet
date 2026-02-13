@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-using Satlink.Domain.Models;
+using Satlink.Contracts.Dtos.Aemet;
 
 namespace Satlink.ApiClient;
 
@@ -9,7 +9,7 @@ namespace Satlink.ApiClient;
 /// </summary>
 public sealed class AemetValuesResult
 {
-    private AemetValuesResult(bool success, string? error, List<Request>? value)
+    private AemetValuesResult(bool success, string? error, List<MarineZonePredictionDto>? value)
     {
         Success = success;
         Error = error ?? string.Empty;
@@ -29,14 +29,14 @@ public sealed class AemetValuesResult
     /// <summary>
     /// Gets the retrieved value.
     /// </summary>
-    public List<Request>? Value { get; }
+    public List<MarineZonePredictionDto>? Value { get; }
 
     /// <summary>
     /// Creates a successful result.
     /// </summary>
     /// <param name="value">The retrieved items.</param>
     /// <returns>The created result.</returns>
-    public static AemetValuesResult Ok(List<Request> value)
+    public static AemetValuesResult Ok(List<MarineZonePredictionDto> value)
     {
         return new AemetValuesResult(true, null, value);
     }

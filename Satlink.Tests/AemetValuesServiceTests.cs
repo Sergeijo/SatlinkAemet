@@ -18,9 +18,10 @@ namespace Satlink.Tests
             try
             {
                 DummyOpenDataClient openDataClient = new DummyOpenDataClient();
-                AemetValuesService service = new AemetValuesService(openDataClient);
+                DummyJsonSerializer jsonSerializer = new DummyJsonSerializer();
+                AemetValuesService service = new AemetValuesService(openDataClient, jsonSerializer);
 
-                Result<List<Request>> result = service.GetAemetMarineZonePredictionValuesAsync("key", "http://not_a_valid_url_for_test", 1)
+                Result<List<MarineZonePrediction>> result = service.GetAemetMarineZonePredictionValuesAsync("key", "http://not_a_valid_url_for_test", 1)
                     .GetAwaiter()
                     .GetResult();
 
@@ -51,6 +52,14 @@ namespace Satlink.Tests
             }
 
             return failures;
+        }
+
+        internal sealed class DummyJsonSerializer : IAemetJsonSerializer
+        {
+            public T? Deserialize<T>(string json)
+            {
+                return default;
+            }
         }
     }
 

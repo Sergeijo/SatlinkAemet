@@ -1,6 +1,6 @@
-﻿namespace Satlink
+namespace Satlink
 {
-    public class MarineZonePrediction : ObservableObject
+    public class MarineZonePredictionItem : ObservableObject
     {
         private int id;
         private string texto;

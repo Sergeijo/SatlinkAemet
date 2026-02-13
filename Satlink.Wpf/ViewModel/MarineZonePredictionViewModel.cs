@@ -17,7 +17,7 @@ namespace Satlink
     {
         private readonly IAemetValuesProvider _aemetValuesProvider;
 
-        private ObservableCollection<MarineZonePrediction> _ZonePredictionsList = new ObservableCollection<MarineZonePrediction>();
+        private ObservableCollection<MarineZonePredictionItem> _ZonePredictionsList = new ObservableCollection<MarineZonePredictionItem>();
 
         private readonly IOptions<ApplicationSettings> configuration;
 
@@ -101,7 +101,7 @@ namespace Satlink
         /// <summary>
         /// Gets or sets the ZonePredictions
         /// </summary>
-        public ObservableCollection<MarineZonePrediction> ZonePredictions
+        public ObservableCollection<MarineZonePredictionItem> ZonePredictions
         {
             get { return _ZonePredictionsList; }
             set { _ZonePredictionsList = value; }
@@ -135,22 +135,21 @@ namespace Satlink
         {
             try
             {
-                _ZonePredictionsList = new ObservableCollection<MarineZonePrediction>();
+                _ZonePredictionsList = new ObservableCollection<MarineZonePredictionItem>();
 
                 AemetValuesResult result = await _aemetValuesProvider.GetAemetMarineZonePredictionValuesAsync(configuration.Value?.api_key, configuration.Value?.url, Zone).ConfigureAwait(true);
 
                 if (result.Success)
                 {
-                    var first = result.Value?.FirstOrDefault();
-                    if (first?.prediccion?.zona != null)
+                    if (result.Value != null)
                     {
-                        foreach (var zona in first.prediccion.zona)
+                        foreach (var zona in result.Value[0].prediccion.zona)
                         {
-                            _ZonePredictionsList.Add(new MarineZonePrediction()
+                            _ZonePredictionsList.Add(new MarineZonePredictionItem
                             {
                                 Id = zona.id,
-                                Texto = zona.texto,
-                                Nombre = zona.nombre
+                                Nombre = zona.nombre,
+                                Texto = zona.texto
                             });
                         }
 

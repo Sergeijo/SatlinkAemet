@@ -16,7 +16,7 @@ public interface IRequestsService
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The list of requests.</returns>
-    Task<Result<List<Request>>> GetAllAsync(CancellationToken cancellationToken);
+    Task<Result<List<PersistedRequest>>> GetAllAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets a request by identifier.
@@ -24,7 +24,7 @@ public interface IRequestsService
     /// <param name="id">The request identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The request if found.</returns>
-    Task<Result<Request>> GetByIdAsync(string id, CancellationToken cancellationToken);
+    Task<Result<PersistedRequest>> GetByIdAsync(string id, CancellationToken cancellationToken);
 
     /// <summary>
     /// Creates a new request.
@@ -32,7 +32,7 @@ public interface IRequestsService
     /// <param name="request">The request to create.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The created request.</returns>
-    Task<Result<Request>> CreateAsync(Request request, CancellationToken cancellationToken);
+    Task<Result<PersistedRequest>> CreateAsync(PersistedRequest request, CancellationToken cancellationToken);
 
     /// <summary>
     /// Updates an existing request.
@@ -41,7 +41,7 @@ public interface IRequestsService
     /// <param name="request">The updated request data.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated request.</returns>
-    Task<Result<Request>> UpdateAsync(string id, Request request, CancellationToken cancellationToken);
+    Task<Result<PersistedRequest>> UpdateAsync(string id, PersistedRequest request, CancellationToken cancellationToken);
 
     /// <summary>
     /// Deletes a request.
