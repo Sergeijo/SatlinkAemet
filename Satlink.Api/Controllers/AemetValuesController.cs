@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 using Satlink.Api.Contracts;
+using Satlink.Api.Mappings;
 using Satlink.Contracts.Dtos.Aemet;
 using Satlink.Logic;
 
@@ -71,42 +72,7 @@ public sealed class AemetValuesController : ControllerBase
                 return BadRequest(problem);
             }
 
-            List<MarineZonePredictionDto> mapped = new List<MarineZonePredictionDto>(result.Value.Count);
-
-            foreach (Satlink.Domain.Models.MarineZonePrediction item in result.Value)
-            {
-                mapped.Add(new MarineZonePredictionDto
-                {
-                    id = item.Id,
-                    nombre = item.Name,
-                    origen = new OrigenDto
-                    {
-                        productor = item.Origin.Producer,
-                        web = item.Origin.Web,
-                        language = item.Origin.Language,
-                        copyright = item.Origin.Copyright,
-                        notaLegal = item.Origin.LegalNote,
-                        elaborado = item.Origin.ProducedAt,
-                        inicio = item.Origin.StartsAt,
-                        fin = item.Origin.EndsAt
-                    },
-                    situacion = new SituacionDto
-                    {
-                        inicio = item.Situation.StartsAt,
-                        fin = item.Situation.EndsAt,
-                        texto = item.Situation.Text,
-                        id = item.Situation.Id,
-                        nombre = item.Situation.Name
-                    },
-                    prediccion = new PrediccionDto
-                    {
-                        inicio = item.Prediction.StartsAt,
-                        fin = item.Prediction.EndsAt,
-                        zona = MapZones(item)
-                    }
-                });
-            }
-
+            List<MarineZonePredictionDto> mapped = MarineZonePredictionMappings.MapPredictions(result.Value);
             return Ok(ApiResponse<List<MarineZonePredictionDto>>.Ok(mapped));
         }
         catch (Exception ex)
@@ -120,22 +86,5 @@ public sealed class AemetValuesController : ControllerBase
 
             return StatusCode(StatusCodes.Status500InternalServerError, problem);
         }
-    }
-
-    private static List<ZonaDto> MapZones(Satlink.Domain.Models.MarineZonePrediction item)
-    {
-        List<ZonaDto> zones = new List<ZonaDto>();
-
-        foreach (Satlink.Domain.Models.MarineZone zone in item.Prediction.Zones)
-        {
-            zones.Add(new ZonaDto
-            {
-                id = zone.Id,
-                nombre = zone.Name,
-                texto = zone.Text
-            });
-        }
-
-        return zones;
     }
 }
