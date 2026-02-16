@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-using Satlink.Domain.Models;
+using Satlink.Contracts.Dtos.Aemet;
 
 namespace Satlink.Logic;
 
@@ -19,5 +19,5 @@ public interface IAemetValuesService
     /// <param name="zone">The zone identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The retrieved prediction items.</returns>
-    Task<Result<List<MarineZonePrediction>>> GetAemetMarineZonePredictionValuesAsync(string apiKey, string url, int zone, CancellationToken cancellationToken = default);
+    Task<Result<List<MarineZonePredictionDto>>> GetAemetMarineZonePredictionValuesAsync(string apiKey, string url, int zone, CancellationToken cancellationToken = default);
 }

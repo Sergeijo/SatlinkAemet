@@ -1,9 +1,7 @@
-using Satlink.Domain.Models;
-
 namespace Satlink.Api.Dtos.Requests;
 
 /// <summary>
-/// Represents the payload to create a <see cref="Request"/>.
+/// Represents the payload to create a request.
 /// </summary>
 public sealed class CreateRequestDto
 {

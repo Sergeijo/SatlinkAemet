@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Satlink.Domain.Models;
 using Satlink.Infrastructure;
 using Satlink.Logic;
+using Satlink.Contracts.Dtos.Aemet;
 
 namespace Satlink.Tests
 {
@@ -21,7 +21,7 @@ namespace Satlink.Tests
                 DummyJsonSerializer jsonSerializer = new DummyJsonSerializer();
                 AemetValuesService service = new AemetValuesService(openDataClient, jsonSerializer);
 
-                Result<List<MarineZonePrediction>> result = service.GetAemetMarineZonePredictionValuesAsync("key", "http://not_a_valid_url_for_test", 1)
+                Result<List<MarineZonePredictionDto>> result = service.GetAemetMarineZonePredictionValuesAsync("key", "http://not_a_valid_url_for_test", 1)
                     .GetAwaiter()
                     .GetResult();
 
