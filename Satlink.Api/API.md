@@ -123,7 +123,7 @@ Body: `GetAemetValuesRequestDto`
 
 ### Responses
 
-- `200 OK` -> `ApiResponse<List<Request>>`
+- `200 OK` -> `ApiResponse<List<RequestDto>>`
 - `400 Bad Request` -> `ProblemDetails` (includes service failures or validation errors)
 - `500 Internal Server Error` -> `ProblemDetails`
 
@@ -162,7 +162,7 @@ Returns a `Request` by id.
 
 ### Responses
 
-- `200 OK` -> `ApiResponse<Request>`
+- `200 OK` -> `ApiResponse<RequestDto>`
 - `404 Not Found` -> `ProblemDetails`
 - `500 Internal Server Error` -> `ProblemDetails`
 
@@ -182,7 +182,7 @@ Body: `CreateRequestDto`
 
 ### Responses
 
-- `201 Created` -> `ApiResponse<Request>`
+- `201 Created` -> `ApiResponse<RequestDto>`
 - `400 Bad Request` -> `ValidationProblemDetails`
 - `500 Internal Server Error` -> `ProblemDetails`
 
@@ -202,7 +202,7 @@ Body: `UpdateRequestDto`
 
 ### Responses
 
-- `200 OK` -> `ApiResponse<Request>`
+- `200 OK` -> `ApiResponse<RequestDto>`
 - `400 Bad Request` -> `ValidationProblemDetails`
 - `404 Not Found` -> `ProblemDetails`
 - `500 Internal Server Error` -> `ProblemDetails`

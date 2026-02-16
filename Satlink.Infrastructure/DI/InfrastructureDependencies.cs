@@ -3,8 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using Satlink.Infrastructure;
-
-using Satlink.Infrastructure;
+using Satlink.Infrastructure.DbContxt;
 using Satlink.Logic;
 
 namespace Satlink.Infrastructure.DI

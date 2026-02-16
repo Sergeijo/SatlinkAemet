@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Satlink.Domain.Models;
+using Satlink.Contracts.Dtos.Requests;
 
 namespace Satlink.Logic;
 
@@ -16,7 +16,7 @@ public interface IRequestsService
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The list of requests.</returns>
-    Task<Result<List<PersistedRequest>>> GetAllAsync(CancellationToken cancellationToken);
+    Task<Result<List<RequestDto>>> GetAllAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets a request by identifier.
@@ -24,7 +24,7 @@ public interface IRequestsService
     /// <param name="id">The request identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The request if found.</returns>
-    Task<Result<PersistedRequest>> GetByIdAsync(string id, CancellationToken cancellationToken);
+    Task<Result<RequestDto>> GetByIdAsync(string id, CancellationToken cancellationToken);
 
     /// <summary>
     /// Creates a new request.
@@ -32,7 +32,7 @@ public interface IRequestsService
     /// <param name="request">The request to create.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The created request.</returns>
-    Task<Result<PersistedRequest>> CreateAsync(PersistedRequest request, CancellationToken cancellationToken);
+    Task<Result<RequestDto>> CreateAsync(string nombre, CancellationToken cancellationToken);
 
     /// <summary>
     /// Updates an existing request.
@@ -41,7 +41,7 @@ public interface IRequestsService
     /// <param name="request">The updated request data.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The updated request.</returns>
-    Task<Result<PersistedRequest>> UpdateAsync(string id, PersistedRequest request, CancellationToken cancellationToken);
+    Task<Result<RequestDto>> UpdateAsync(string id, string nombre, CancellationToken cancellationToken);
 
     /// <summary>
     /// Deletes a request.

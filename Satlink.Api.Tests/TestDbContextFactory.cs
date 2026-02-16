@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
-using Satlink.Infrastructure.DI;
+using Satlink.Infrastructure.DbContxt;
 
 namespace Satlink.Api.Tests;
 

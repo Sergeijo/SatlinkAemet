@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 using Satlink.Api.Contracts;
-using Satlink.Api.Mappings;
 using Satlink.Contracts.Dtos.Aemet;
 using Satlink.Logic;
 
@@ -54,7 +53,7 @@ public sealed class AemetValuesController : ControllerBase
 
         try
         {
-            Result<List<Satlink.Domain.Models.MarineZonePrediction>> result = await _aemetValuesService.GetAemetMarineZonePredictionValuesAsync(
+            Result<List<MarineZonePredictionDto>> result = await _aemetValuesService.GetAemetMarineZonePredictionValuesAsync(
                 request.ApiKey,
                 request.Url,
                 request.Zone,
@@ -72,8 +71,7 @@ public sealed class AemetValuesController : ControllerBase
                 return BadRequest(problem);
             }
 
-            List<MarineZonePredictionDto> mapped = MarineZonePredictionMappings.MapPredictions(result.Value);
-            return Ok(ApiResponse<List<MarineZonePredictionDto>>.Ok(mapped));
+            return Ok(ApiResponse<List<MarineZonePredictionDto>>.Ok(result.Value));
         }
         catch (Exception ex)
         {

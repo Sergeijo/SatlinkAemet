@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Satlink.Contracts.Dtos.Requests;
 using Satlink.Domain.Models;
 
 namespace Satlink.Logic;
@@ -24,24 +25,24 @@ public sealed class RequestsService : IRequestsService
     }
 
     /// <inheritdoc />
-    public async Task<Result<List<PersistedRequest>>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<Result<List<RequestDto>>> GetAllAsync(CancellationToken cancellationToken)
     {
         try
         {
             List<PersistedRequest> items = await _requestsRepository.GetAllAsync(cancellationToken);
 
             // Return items.
-            return Result.Ok(items);
+            return Result.Ok(MapRequests(items));
         }
         catch (Exception ex)
         {
             // Map unexpected exception.
-            return Result.Fail<List<PersistedRequest>>("Error while retrieving items: " + ex.Message);
+            return Result.Fail<List<RequestDto>>("Error while retrieving items: " + ex.Message);
         }
     }
 
     /// <inheritdoc />
-    public async Task<Result<PersistedRequest>> GetByIdAsync(string id, CancellationToken cancellationToken)
+    public async Task<Result<RequestDto>> GetByIdAsync(string id, CancellationToken cancellationToken)
     {
         try
         {
@@ -50,53 +51,58 @@ public sealed class RequestsService : IRequestsService
             if (entity is null)
             {
                 // Return failure if not found.
-                return Result.Fail<PersistedRequest>("Request not found.");
+                return Result.Fail<RequestDto>("Request not found.");
             }
 
-            return Result.Ok(entity);
+            return Result.Ok(MapRequest(entity));
         }
         catch (Exception ex)
         {
-            return Result.Fail<PersistedRequest>("Error while retrieving item: " + ex.Message);
+            return Result.Fail<RequestDto>("Error while retrieving item: " + ex.Message);
         }
     }
 
     /// <inheritdoc />
-    public async Task<Result<PersistedRequest>> CreateAsync(PersistedRequest request, CancellationToken cancellationToken)
+    public async Task<Result<RequestDto>> CreateAsync(string nombre, CancellationToken cancellationToken)
     {
         try
         {
-            // Assign id if missing.
-            if (string.IsNullOrWhiteSpace(request.id))
+            PersistedRequest request = new PersistedRequest
             {
-                request.id = Guid.NewGuid().ToString("N");
-            }
+                id = Guid.NewGuid().ToString("N"),
+                nombre = nombre
+            };
 
             PersistedRequest created = await _requestsRepository.CreateAsync(request, cancellationToken);
 
             // Return created.
-            return Result.Ok(created);
+            return Result.Ok(MapRequest(created));
         }
         catch (Exception ex)
         {
-            return Result.Fail<PersistedRequest>("Error while creating item: " + ex.Message);
+            return Result.Fail<RequestDto>("Error while creating item: " + ex.Message);
         }
     }
 
     /// <inheritdoc />
-    public async Task<Result<PersistedRequest>> UpdateAsync(string id, PersistedRequest request, CancellationToken cancellationToken)
+    public async Task<Result<RequestDto>> UpdateAsync(string id, string nombre, CancellationToken cancellationToken)
     {
         try
         {
+            PersistedRequest request = new PersistedRequest
+            {
+                nombre = nombre
+            };
+
             PersistedRequest? updated = await _requestsRepository.UpdateAsync(id, request, cancellationToken);
 
             return updated is null
-                ? Result.Fail<PersistedRequest>("Request not found.")
-                : Result.Ok(updated);
+                ? Result.Fail<RequestDto>("Request not found.")
+                : Result.Ok(MapRequest(updated));
         }
         catch (Exception ex)
         {
-            return Result.Fail<PersistedRequest>("Error while updating item: " + ex.Message);
+            return Result.Fail<RequestDto>("Error while updating item: " + ex.Message);
         }
     }
 
@@ -118,5 +124,77 @@ public sealed class RequestsService : IRequestsService
         {
             return Result.Fail("Error while deleting item: " + ex.Message);
         }
+    }
+
+    private static List<RequestDto> MapRequests(List<PersistedRequest> requests)
+    {
+        List<RequestDto> mapped = new List<RequestDto>(requests.Count);
+
+        foreach (PersistedRequest request in requests)
+        {
+            mapped.Add(MapRequest(request));
+        }
+
+        return mapped;
+    }
+
+    private static RequestDto MapRequest(PersistedRequest request)
+    {
+        Origen origen = request.origen ?? new Origen();
+        Situacion situacion = request.situacion ?? new Situacion();
+        Prediccion prediccion = request.prediccion ?? new Prediccion();
+
+        return new RequestDto
+        {
+            Id = request.id,
+            Nombre = request.nombre,
+            Origen = new RequestOrigenDto
+            {
+                Productor = origen.productor,
+                Web = origen.web,
+                Language = origen.language,
+                Copyright = origen.copyright,
+                NotaLegal = origen.notaLegal,
+                Elaborado = origen.elaborado,
+                Inicio = origen.inicio,
+                Fin = origen.fin
+            },
+            Situacion = new RequestSituacionDto
+            {
+                Inicio = situacion.inicio,
+                Fin = situacion.fin,
+                Texto = situacion.texto,
+                Id = situacion.id,
+                Nombre = situacion.nombre
+            },
+            Prediccion = new RequestPrediccionDto
+            {
+                Inicio = prediccion.inicio,
+                Fin = prediccion.fin,
+                Zona = MapZonas(prediccion.zona)
+            }
+        };
+    }
+
+    private static IReadOnlyList<RequestZonaDto> MapZonas(List<Zona>? zonas)
+    {
+        if (zonas is null || zonas.Count == 0)
+        {
+            return Array.Empty<RequestZonaDto>();
+        }
+
+        List<RequestZonaDto> mapped = new List<RequestZonaDto>(zonas.Count);
+
+        foreach (Zona zona in zonas)
+        {
+            mapped.Add(new RequestZonaDto
+            {
+                Id = zona.id,
+                Nombre = zona.nombre,
+                Texto = zona.texto
+            });
+        }
+
+        return mapped;
     }
 }

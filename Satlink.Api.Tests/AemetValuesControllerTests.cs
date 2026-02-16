@@ -11,7 +11,6 @@ using NSubstitute;
 using Satlink.Api.Controllers;
 using Satlink.Api.Contracts;
 using Satlink.Contracts.Dtos.Aemet;
-using Satlink.Domain.Models;
 using Satlink.Logic;
 
 using Xunit;
@@ -27,7 +26,7 @@ public sealed class AemetValuesControllerTests
         IAemetValuesService service = Substitute.For<IAemetValuesService>();
         Microsoft.Extensions.Logging.ILogger<AemetValuesController> logger = Substitute.For<Microsoft.Extensions.Logging.ILogger<AemetValuesController>>();
 
-        List<MarineZonePrediction> expected = new List<MarineZonePrediction>();
+        List<MarineZonePredictionDto> expected = new List<MarineZonePredictionDto>();
 
         service
             .GetAemetMarineZonePredictionValuesAsync("key", "https://example.com", 1, Arg.Any<CancellationToken>())
@@ -58,7 +57,7 @@ public sealed class AemetValuesControllerTests
 
         service
             .GetAemetMarineZonePredictionValuesAsync("key", "https://example.com", 1, Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(Result.Fail<List<MarineZonePrediction>>("boom")));
+            .Returns(Task.FromResult(Result.Fail<List<MarineZonePredictionDto>>("boom")));
 
         AemetValuesController controller = new AemetValuesController(service, logger);
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
