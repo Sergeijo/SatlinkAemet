@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 using Satlink.Domain.Models;
-using Satlink.Infrastructure.DI;
+using Satlink.Infrastructure.DbContxt;
 
 namespace Satlink.Infrastructure
 {
@@ -44,14 +44,12 @@ namespace Satlink.Infrastructure
         }
 
         /// <inheritdoc />
-        [System.Obsolete("Use GetAllAemetItemsAsync(CancellationToken).")]
         public IEnumerable<PersistedRequest> GetAllAemetItems()
         {
             return _aemetDbContext.zonePredictionsItems;
         }
 
         /// <inheritdoc />
-        [System.Obsolete("Use GetAemetItemByIdAsync(int, CancellationToken).")]
         public Task<PersistedRequest> GetAemetItems(int id)
         {
             return _aemetDbContext.zonePredictionsItems.FirstOrDefaultAsync(aemet => true);

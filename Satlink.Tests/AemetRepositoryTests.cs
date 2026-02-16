@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Satlink.Infrastructure.DI;
+using Satlink.Infrastructure.DbContxt;
 using Satlink.Domain.Models;
 
 namespace Satlink.Tests

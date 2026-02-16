@@ -1,9 +1,7 @@
-using Satlink.Domain.Models;
-
 namespace Satlink.Api.Dtos.Requests;
 
 /// <summary>
-/// Represents the payload to update a <see cref="Request"/>.
+/// Represents the payload to update a request.
 /// </summary>
 public sealed class UpdateRequestDto
 {

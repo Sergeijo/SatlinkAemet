@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 using Satlink.Api.Contracts;
 using Satlink.Api.Dtos.Requests;
-using Satlink.Domain.Models;
+using Satlink.Contracts.Dtos.Requests;
 using Satlink.Logic;
 
 namespace Satlink.Api.Controllers;
@@ -44,9 +44,9 @@ public sealed class RequestsController : ControllerBase
     /// <response code="200">Returns the list.</response>
     /// <response code="500">If an unexpected error occurs.</response>
     [HttpGet]
-    [ProducesResponseType(typeof(ApiResponse<List<PersistedRequest>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<List<RequestDto>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<ApiResponse<List<PersistedRequest>>>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<ActionResult<ApiResponse<List<RequestDto>>>> GetAllAsync(CancellationToken cancellationToken)
     {
         // Log request.
         _logger.LogInformation("Getting all requests");
@@ -54,7 +54,7 @@ public sealed class RequestsController : ControllerBase
         try
         {
             // Delegate to Logic service.
-            Result<List<PersistedRequest>> result = await _requestsService.GetAllAsync(cancellationToken);
+            Result<List<RequestDto>> result = await _requestsService.GetAllAsync(cancellationToken);
 
             if (result.IsFailure)
             {
@@ -68,7 +68,7 @@ public sealed class RequestsController : ControllerBase
                 return StatusCode(StatusCodes.Status500InternalServerError, problem);
             }
 
-            return Ok(ApiResponse<List<PersistedRequest>>.Ok(result.Value));
+            return Ok(ApiResponse<List<RequestDto>>.Ok(result.Value));
         }
         catch (Exception ex)
         {
@@ -93,10 +93,10 @@ public sealed class RequestsController : ControllerBase
     /// <response code="404">If the request does not exist.</response>
     /// <response code="500">If an unexpected error occurs.</response>
     [HttpGet("{id}")]
-    [ProducesResponseType(typeof(ApiResponse<PersistedRequest>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<RequestDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<ApiResponse<PersistedRequest>>> GetByIdAsync([FromRoute] string id, CancellationToken cancellationToken)
+    public async Task<ActionResult<ApiResponse<RequestDto>>> GetByIdAsync([FromRoute] string id, CancellationToken cancellationToken)
     {
         // Log request.
         _logger.LogInformation("Getting request {RequestId}", id);
@@ -104,7 +104,7 @@ public sealed class RequestsController : ControllerBase
         try
         {
             // Delegate to Logic service.
-            Result<PersistedRequest> result = await _requestsService.GetByIdAsync(id, cancellationToken);
+            Result<RequestDto> result = await _requestsService.GetByIdAsync(id, cancellationToken);
 
             if (result.IsFailure)
             {
@@ -118,7 +118,7 @@ public sealed class RequestsController : ControllerBase
                 return NotFound(problem);
             }
 
-            return Ok(ApiResponse<PersistedRequest>.Ok(result.Value));
+            return Ok(ApiResponse<RequestDto>.Ok(result.Value));
         }
         catch (Exception ex)
         {
@@ -143,24 +143,18 @@ public sealed class RequestsController : ControllerBase
     /// <response code="400">If the payload is invalid.</response>
     /// <response code="500">If an unexpected error occurs.</response>
     [HttpPost]
-    [ProducesResponseType(typeof(ApiResponse<PersistedRequest>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<RequestDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<ApiResponse<PersistedRequest>>> CreateAsync([FromBody] CreateRequestDto dto, CancellationToken cancellationToken)
+    public async Task<ActionResult<ApiResponse<RequestDto>>> CreateAsync([FromBody] CreateRequestDto dto, CancellationToken cancellationToken)
     {
         // Log request.
         _logger.LogInformation("Creating request");
 
         try
         {
-            // Map DTO to domain model.
-            PersistedRequest entity = new PersistedRequest
-            {
-                nombre = dto.Nombre
-            };
-
             // Delegate to Logic service.
-            Result<PersistedRequest> result = await _requestsService.CreateAsync(entity, cancellationToken);
+            Result<RequestDto> result = await _requestsService.CreateAsync(dto.Nombre, cancellationToken);
 
             if (result.IsFailure)
             {
@@ -174,9 +168,9 @@ public sealed class RequestsController : ControllerBase
                 return StatusCode(StatusCodes.Status500InternalServerError, problem);
             }
 
-            ApiResponse<PersistedRequest> response = ApiResponse<PersistedRequest>.Ok(result.Value);
+            ApiResponse<RequestDto> response = ApiResponse<RequestDto>.Ok(result.Value);
 
-            return CreatedAtAction(nameof(GetByIdAsync), new { id = result.Value.id }, response);
+            return CreatedAtAction(nameof(GetByIdAsync), new { id = result.Value.Id }, response);
         }
         catch (Exception ex)
         {
@@ -203,25 +197,19 @@ public sealed class RequestsController : ControllerBase
     /// <response code="404">If the request does not exist.</response>
     /// <response code="500">If an unexpected error occurs.</response>
     [HttpPut("{id}")]
-    [ProducesResponseType(typeof(ApiResponse<PersistedRequest>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<RequestDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<ApiResponse<PersistedRequest>>> UpdateAsync([FromRoute] string id, [FromBody] UpdateRequestDto dto, CancellationToken cancellationToken)
+    public async Task<ActionResult<ApiResponse<RequestDto>>> UpdateAsync([FromRoute] string id, [FromBody] UpdateRequestDto dto, CancellationToken cancellationToken)
     {
         // Log request.
         _logger.LogInformation("Updating request {RequestId}", id);
 
         try
         {
-            // Map DTO to domain model.
-            PersistedRequest entity = new PersistedRequest
-            {
-                nombre = dto.Nombre
-            };
-
             // Delegate to Logic service.
-            Result<PersistedRequest> result = await _requestsService.UpdateAsync(id, entity, cancellationToken);
+            Result<RequestDto> result = await _requestsService.UpdateAsync(id, dto.Nombre, cancellationToken);
 
             if (result.IsFailure)
             {
@@ -235,7 +223,7 @@ public sealed class RequestsController : ControllerBase
                 return NotFound(problem);
             }
 
-            return Ok(ApiResponse<PersistedRequest>.Ok(result.Value));
+            return Ok(ApiResponse<RequestDto>.Ok(result.Value));
         }
         catch (Exception ex)
         {

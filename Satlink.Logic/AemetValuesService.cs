@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Satlink.Contracts.Aemet;
-using Satlink.Domain.Models;
+using Satlink.Contracts.Dtos.Aemet;
 
 namespace Satlink.Logic;
 
@@ -27,7 +27,7 @@ public class AemetValuesService : IAemetValuesService
     }
 
     /// <inheritdoc />
-    public async Task<Result<List<MarineZonePrediction>>> GetAemetMarineZonePredictionValuesAsync(string apiKey, string url, int zone, CancellationToken cancellationToken = default)
+    public async Task<Result<List<MarineZonePredictionDto>>> GetAemetMarineZonePredictionValuesAsync(string apiKey, string url, int zone, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -39,7 +39,7 @@ public class AemetValuesService : IAemetValuesService
 
             if (fileAux is null || string.IsNullOrWhiteSpace(fileAux.datos))
             {
-                return Result.Fail<List<MarineZonePrediction>>("No items found.");
+                return Result.Fail<List<MarineZonePredictionDto>>("No items found.");
             }
 
             string contentJson = await _openDataClient
@@ -50,78 +50,78 @@ public class AemetValuesService : IAemetValuesService
 
             if (dtoValues is null || dtoValues.Count == 0)
             {
-                return Result.Fail<List<MarineZonePrediction>>("No items found.");
+                return Result.Fail<List<MarineZonePredictionDto>>("No items found.");
             }
 
-            List<MarineZonePrediction> mapped = new List<MarineZonePrediction>(dtoValues.Count);
+            List<MarineZonePredictionDto> mapped = new List<MarineZonePredictionDto>(dtoValues.Count);
 
             foreach (AemetMarineZonePredictionDto dto in dtoValues)
             {
-                mapped.Add(MapToDomain(dto));
+                mapped.Add(MapToDto(dto));
             }
 
             return Result.Ok(mapped);
         }
         catch (Exception e)
         {
-            return Result.Fail<List<MarineZonePrediction>>("Error while reading " + e.Message);
+            return Result.Fail<List<MarineZonePredictionDto>>("Error while reading " + e.Message);
         }
     }
 
-    private static MarineZonePrediction MapToDomain(AemetMarineZonePredictionDto dto)
+    private static MarineZonePredictionDto MapToDto(AemetMarineZonePredictionDto dto)
     {
         AemetOrigenDto origen = dto.origen ?? new AemetOrigenDto();
         AemetSituacionDto situacion = dto.situacion ?? new AemetSituacionDto();
         AemetPrediccionDto prediccion = dto.prediccion ?? new AemetPrediccionDto();
 
-        return new MarineZonePrediction
+        return new MarineZonePredictionDto
         {
-            Id = dto.id,
-            Name = dto.nombre,
-            Origin = new MarineOrigin
+            id = dto.id,
+            nombre = dto.nombre,
+            origen = new OrigenDto
             {
-                Producer = origen.productor,
-                Web = origen.web,
-                Language = origen.language,
-                Copyright = origen.copyright,
-                LegalNote = origen.notaLegal,
-                ProducedAt = origen.elaborado,
-                StartsAt = origen.inicio,
-                EndsAt = origen.fin
+                productor = origen.productor,
+                web = origen.web,
+                language = origen.language,
+                copyright = origen.copyright,
+                notaLegal = origen.notaLegal,
+                elaborado = origen.elaborado,
+                inicio = origen.inicio,
+                fin = origen.fin
             },
-            Situation = new MarineSituation
+            situacion = new SituacionDto
             {
-                StartsAt = situacion.inicio,
-                EndsAt = situacion.fin,
-                Text = situacion.texto,
-                Id = situacion.id,
-                Name = situacion.nombre
+                inicio = situacion.inicio,
+                fin = situacion.fin,
+                texto = situacion.texto,
+                id = situacion.id,
+                nombre = situacion.nombre
             },
-            Prediction = new MarinePrediction
+            prediccion = new PrediccionDto
             {
-                StartsAt = prediccion.inicio,
-                EndsAt = prediccion.fin,
-                Zones = MapZonas(prediccion.zona)
+                inicio = prediccion.inicio,
+                fin = prediccion.fin,
+                zona = MapZonas(prediccion.zona)
             }
         };
     }
 
-    private static IReadOnlyList<MarineZone> MapZonas(List<AemetZonaDto>? zones)
+    private static List<ZonaDto> MapZonas(List<AemetZonaDto>? zones)
     {
         if (zones is null || zones.Count == 0)
         {
-            return Array.Empty<MarineZone>();
+            return new List<ZonaDto>();
         }
 
-        List<MarineZone> mapped = new List<MarineZone>(zones.Count);
+        List<ZonaDto> mapped = new List<ZonaDto>(zones.Count);
 
         foreach (AemetZonaDto zone in zones)
         {
-            mapped.Add(new MarineZone
+            mapped.Add(new ZonaDto
             {
-                Id = zone.id,
-                Name = zone.nombre,
-                Text = zone.texto
+                id = zone.id,
+                nombre = zone.nombre,
+                texto = zone.texto
             });
         }
 

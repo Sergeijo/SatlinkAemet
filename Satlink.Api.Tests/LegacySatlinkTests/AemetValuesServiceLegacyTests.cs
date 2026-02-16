@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using NSubstitute;
 
+using Satlink.Contracts.Dtos.Aemet;
 using Satlink.Infrastructure;
 using Satlink.Logic;
 
@@ -24,7 +25,7 @@ public sealed class AemetValuesServiceLegacyTests
         IAemetJsonSerializer serializer = new AemetJsonSerializer();
         AemetValuesService service = new AemetValuesService(client, serializer);
 
-        Result<List<Satlink.Domain.Models.MarineZonePrediction>> result = await service.GetAemetMarineZonePredictionValuesAsync(
+        Result<List<MarineZonePredictionDto>> result = await service.GetAemetMarineZonePredictionValuesAsync(
             "key",
             "http://not_a_valid_url_for_test",
             1);
