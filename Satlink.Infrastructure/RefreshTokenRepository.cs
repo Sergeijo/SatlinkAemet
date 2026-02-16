@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 using Satlink.Domain.Models;
-using Satlink.Infrastructure.DI;
+using Satlink.Infrastructure.DbContxt;
 using Satlink.Logic;
 
 namespace Satlink.Infrastructure;

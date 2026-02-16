@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Satlink.Domain.Models;
 
-namespace Satlink.Infrastructure.DI
+namespace Satlink.Infrastructure.DbContxt
 {
     public class AemetDbContext : DbContext
     {
