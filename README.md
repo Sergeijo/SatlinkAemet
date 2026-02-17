@@ -3,7 +3,7 @@
 Solution for the **Satlink technical test** based on a Clean-Architecture with:
 
 - **WPF (MVVM)** client.
-- **Angular** client.
+- **Angular** client built with CLI 19 (with Standalone Components, Signals and Built-in Control Flow).
 - **REST API** in **.NET 10**.
 - **Domain / Application (Logic) / Infrastructure / Contracts** layers.
 - **Test** projects.

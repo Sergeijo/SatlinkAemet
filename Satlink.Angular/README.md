@@ -1,6 +1,12 @@
 # SatlinkAngular
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.19.
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) 19 (version 19.2.19).
+
+The project incorporates:
+
+- Standalone Components (no NgModules)
+- Signals
+- Built-in Control Flow (`@if`, `@for`, `@switch`)
 
 ## Development server
 
