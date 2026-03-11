@@ -1,6 +1,8 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +12,7 @@ using Satlink.Api.Contracts;
 using Satlink.Api.Dtos.Auth;
 using Satlink.Domain.Models;
 using Satlink.Logic;
+using Satlink.Logic.CQRS.Auth.Commands;
 
 namespace Satlink.Api.Controllers;
 
@@ -20,17 +23,17 @@ namespace Satlink.Api.Controllers;
 [Route("api/[controller]")]
 public sealed class AuthController : ControllerBase
 {
-    private readonly IAuthService _authService;
+    private readonly IMediator _mediator;
     private readonly ILogger<AuthController> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AuthController"/> class.
     /// </summary>
-    /// <param name="authService">The auth use case.</param>
+    /// <param name="mediator">The mediator.</param>
     /// <param name="logger">The logger.</param>
-    public AuthController(IAuthService authService, ILogger<AuthController> logger)
+    public AuthController(IMediator mediator, ILogger<AuthController> logger)
     {
-        _authService = authService;
+        _mediator = mediator;
         _logger = logger;
     }
 
@@ -54,7 +57,8 @@ public sealed class AuthController : ControllerBase
 
         try
         {
-            Result<AuthLoginResult> result = await _authService.LoginAsync(dto.Email, dto.Password, cancellationToken);
+            // Dispatch command via mediator.
+            Result<AuthLoginResult> result = await _mediator.Send(new LoginCommand(dto.Email, dto.Password), cancellationToken);
 
             if (result.IsFailure)
             {
@@ -120,7 +124,8 @@ public sealed class AuthController : ControllerBase
 
         try
         {
-            Result<AuthRefreshResult> result = await _authService.RefreshAsync(dto.RefreshToken, cancellationToken);
+            // Dispatch command via mediator.
+            Result<AuthRefreshResult> result = await _mediator.Send(new RefreshTokenCommand(dto.RefreshToken), cancellationToken);
 
             if (result.IsFailure)
             {

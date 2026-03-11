@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using Satlink.Infrastructure;
+using Satlink.Infrastructure.Dapper;
 using Satlink.Infrastructure.DbContxt;
 using Satlink.Logic;
 
@@ -15,6 +16,10 @@ namespace Satlink.Infrastructure.DI
         {
             services.AddDbContext<AemetDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("SatlinkApp")));
+
+            // Dapper read side (CQRS queries)
+            services.AddSingleton<ISqlConnectionFactory, SqlConnectionFactory>();
+            services.AddScoped<IRequestsQueryRepository, RequestsDapperQueryRepository>();
 
             services.AddHttpClient<IAemetOpenDataClient, AemetOpenDataClient>();
             services.AddScoped<IAemetRepository, AemetRepository>();

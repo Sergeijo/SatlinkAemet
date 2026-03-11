@@ -2,6 +2,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
+using MediatR;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -13,6 +15,7 @@ using Satlink.Api.Contracts;
 using Satlink.Api.Dtos.Auth;
 using Satlink.Domain.Models;
 using Satlink.Logic;
+using Satlink.Logic.CQRS.Auth.Commands;
 
 using Xunit;
 
@@ -32,19 +35,19 @@ public sealed class AuthControllerTests
             Role = "User"
         };
 
-        IAuthService authService = Substitute.For<IAuthService>();
+        IMediator mediator = Substitute.For<IMediator>();
         ILogger<AuthController> logger = Substitute.For<ILogger<AuthController>>();
 
-        authService.LoginAsync(user.Email, "password123", Arg.Any<CancellationToken>())
-            .Returns(Result.Ok(new AuthLoginResult
+        mediator.Send(Arg.Any<LoginCommand>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(Result.Ok(new AuthLoginResult
             {
                 AccessToken = "access.jwt",
                 RefreshToken = "refresh.token",
                 ExpiresIn = 3600,
                 User = user
-            }));
+            })));
 
-        AuthController controller = new AuthController(authService, logger)
+        AuthController controller = new AuthController(mediator, logger)
         {
             ControllerContext = new ControllerContext
             {
@@ -67,20 +70,20 @@ public sealed class AuthControllerTests
         Assert.Equal(3600, payload.Data.ExpiresIn);
         Assert.Equal(user.Email, payload.Data.User.Email);
 
-        await authService.Received(1).LoginAsync(user.Email, "password123", Arg.Any<CancellationToken>());
+        await mediator.Received(1).Send(Arg.Any<LoginCommand>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
     public async Task LoginAsync_UsuarioNoExiste_RetornaUnauthorizedAsync()
     {
         // Arrange
-        IAuthService authService = Substitute.For<IAuthService>();
+        IMediator mediator = Substitute.For<IMediator>();
         ILogger<AuthController> logger = Substitute.For<ILogger<AuthController>>();
 
-        authService.LoginAsync("missing@test.com", "wrong", Arg.Any<CancellationToken>())
-            .Returns(Result.Fail<AuthLoginResult>("Invalid credentials."));
+        mediator.Send(Arg.Any<LoginCommand>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(Result.Fail<AuthLoginResult>("Invalid credentials.")));
 
-        AuthController controller = new AuthController(authService, logger)
+        AuthController controller = new AuthController(mediator, logger)
         {
             ControllerContext = new ControllerContext
             {
@@ -98,7 +101,7 @@ public sealed class AuthControllerTests
         ProblemDetails problem = Assert.IsType<ProblemDetails>(unauthorized.Value);
         Assert.Equal(StatusCodes.Status401Unauthorized, problem.Status);
 
-        await authService.Received(1).LoginAsync("missing@test.com", "wrong", Arg.Any<CancellationToken>());
+        await mediator.Received(1).Send(Arg.Any<LoginCommand>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -113,13 +116,13 @@ public sealed class AuthControllerTests
             Role = "User"
         };
 
-        IAuthService authService = Substitute.For<IAuthService>();
+        IMediator mediator = Substitute.For<IMediator>();
         ILogger<AuthController> logger = Substitute.For<ILogger<AuthController>>();
 
-        authService.LoginAsync(user.Email, "wrong", Arg.Any<CancellationToken>())
-            .Returns(Result.Fail<AuthLoginResult>("Invalid credentials."));
+        mediator.Send(Arg.Any<LoginCommand>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(Result.Fail<AuthLoginResult>("Invalid credentials.")));
 
-        AuthController controller = new AuthController(authService, logger)
+        AuthController controller = new AuthController(mediator, logger)
         {
             ControllerContext = new ControllerContext
             {
@@ -137,25 +140,25 @@ public sealed class AuthControllerTests
         ProblemDetails problem = Assert.IsType<ProblemDetails>(unauthorized.Value);
         Assert.Equal(StatusCodes.Status401Unauthorized, problem.Status);
 
-        await authService.Received(1).LoginAsync(user.Email, "wrong", Arg.Any<CancellationToken>());
+        await mediator.Received(1).Send(Arg.Any<LoginCommand>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
     public async Task RefreshAsync_TokenValido_RetornaOkConNuevosTokensAsync()
     {
         // Arrange
-        IAuthService authService = Substitute.For<IAuthService>();
+        IMediator mediator = Substitute.For<IMediator>();
         ILogger<AuthController> logger = Substitute.For<ILogger<AuthController>>();
 
-        authService.RefreshAsync("refresh.token", Arg.Any<CancellationToken>())
-            .Returns(Result.Ok(new AuthRefreshResult
+        mediator.Send(Arg.Any<RefreshTokenCommand>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(Result.Ok(new AuthRefreshResult
             {
                 AccessToken = "new.access",
                 RefreshToken = "new.refresh",
                 ExpiresIn = 3600
-            }));
+            })));
 
-        AuthController controller = new AuthController(authService, logger)
+        AuthController controller = new AuthController(mediator, logger)
         {
             ControllerContext = new ControllerContext
             {
@@ -177,20 +180,20 @@ public sealed class AuthControllerTests
         Assert.Equal("new.refresh", payload.Data.RefreshToken);
         Assert.Equal(3600, payload.Data.ExpiresIn);
 
-        await authService.Received(1).RefreshAsync("refresh.token", Arg.Any<CancellationToken>());
+        await mediator.Received(1).Send(Arg.Any<RefreshTokenCommand>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
     public async Task RefreshAsync_TokenInvalido_RetornaUnauthorizedAsync()
     {
         // Arrange
-        IAuthService authService = Substitute.For<IAuthService>();
+        IMediator mediator = Substitute.For<IMediator>();
         ILogger<AuthController> logger = Substitute.For<ILogger<AuthController>>();
 
-        authService.RefreshAsync("bad.token", Arg.Any<CancellationToken>())
-            .Returns(Result.Fail<AuthRefreshResult>("Refresh token not found."));
+        mediator.Send(Arg.Any<RefreshTokenCommand>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(Result.Fail<AuthRefreshResult>("Refresh token not found.")));
 
-        AuthController controller = new AuthController(authService, logger)
+        AuthController controller = new AuthController(mediator, logger)
         {
             ControllerContext = new ControllerContext
             {

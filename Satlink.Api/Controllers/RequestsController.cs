@@ -1,7 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +14,8 @@ using Satlink.Api.Contracts;
 using Satlink.Api.Dtos.Requests;
 using Satlink.Contracts.Dtos.Requests;
 using Satlink.Logic;
+using Satlink.Logic.CQRS.Requests.Commands;
+using Satlink.Logic.CQRS.Requests.Queries;
 
 namespace Satlink.Api.Controllers;
 
@@ -22,17 +26,17 @@ namespace Satlink.Api.Controllers;
 [Route("api/[controller]")]
 public sealed class RequestsController : ControllerBase
 {
-    private readonly IRequestsService _requestsService;
+    private readonly IMediator _mediator;
     private readonly ILogger<RequestsController> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RequestsController"/> class.
     /// </summary>
-    /// <param name="requestsService">The requests service.</param>
+    /// <param name="mediator">The mediator.</param>
     /// <param name="logger">The logger.</param>
-    public RequestsController(IRequestsService requestsService, ILogger<RequestsController> logger)
+    public RequestsController(IMediator mediator, ILogger<RequestsController> logger)
     {
-        _requestsService = requestsService;
+        _mediator = mediator;
         _logger = logger;
     }
 
@@ -53,8 +57,8 @@ public sealed class RequestsController : ControllerBase
 
         try
         {
-            // Delegate to Logic service.
-            Result<List<RequestDto>> result = await _requestsService.GetAllAsync(cancellationToken);
+            // Dispatch query via mediator.
+            Result<List<RequestDto>> result = await _mediator.Send(new GetAllRequestsQuery(), cancellationToken);
 
             if (result.IsFailure)
             {
@@ -103,8 +107,8 @@ public sealed class RequestsController : ControllerBase
 
         try
         {
-            // Delegate to Logic service.
-            Result<RequestDto> result = await _requestsService.GetByIdAsync(id, cancellationToken);
+            // Dispatch query via mediator.
+            Result<RequestDto> result = await _mediator.Send(new GetRequestByIdQuery(id), cancellationToken);
 
             if (result.IsFailure)
             {
@@ -153,8 +157,8 @@ public sealed class RequestsController : ControllerBase
 
         try
         {
-            // Delegate to Logic service.
-            Result<RequestDto> result = await _requestsService.CreateAsync(dto.Nombre, cancellationToken);
+            // Dispatch command via mediator.
+            Result<RequestDto> result = await _mediator.Send(new CreateRequestCommand(dto.Nombre), cancellationToken);
 
             if (result.IsFailure)
             {
@@ -208,8 +212,8 @@ public sealed class RequestsController : ControllerBase
 
         try
         {
-            // Delegate to Logic service.
-            Result<RequestDto> result = await _requestsService.UpdateAsync(id, dto.Nombre, cancellationToken);
+            // Dispatch command via mediator.
+            Result<RequestDto> result = await _mediator.Send(new UpdateRequestCommand(id, dto.Nombre), cancellationToken);
 
             if (result.IsFailure)
             {
@@ -258,8 +262,8 @@ public sealed class RequestsController : ControllerBase
 
         try
         {
-            // Delegate to Logic service.
-            Result result = await _requestsService.DeleteAsync(id, cancellationToken);
+            // Dispatch command via mediator.
+            Result result = await _mediator.Send(new DeleteRequestCommand(id), cancellationToken);
 
             if (result.IsFailure)
             {

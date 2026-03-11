@@ -1,4 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using MediatR;
+
+using Microsoft.Extensions.DependencyInjection;
+
+using Satlink.Logic.CQRS.AemetValues.Queries;
 
 namespace Satlink.Logic.DI
 {
@@ -9,6 +13,9 @@ namespace Satlink.Logic.DI
             services.AddScoped<IAemetValuesService, AemetValuesService>();
             services.AddScoped<IRequestsService, RequestsService>();
             services.AddScoped<IAuthService, AuthService>();
+
+            services.AddMediatR(cfg =>
+                cfg.RegisterServicesFromAssemblyContaining<GetAemetValuesQueryHandler>());
         }
     }
 }

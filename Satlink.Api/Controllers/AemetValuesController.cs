@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
+using MediatR;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -10,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Satlink.Api.Contracts;
 using Satlink.Contracts.Dtos.Aemet;
 using Satlink.Logic;
+using Satlink.Logic.CQRS.AemetValues.Queries;
 
 namespace Satlink.Api.Controllers;
 
@@ -20,17 +23,17 @@ namespace Satlink.Api.Controllers;
 [Route("api/[controller]")]
 public sealed class AemetValuesController : ControllerBase
 {
-    private readonly IAemetValuesService _aemetValuesService;
+    private readonly IMediator _mediator;
     private readonly ILogger<AemetValuesController> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AemetValuesController"/> class.
     /// </summary>
-    /// <param name="aemetValuesService">The AEMET values service.</param>
+    /// <param name="mediator">The mediator.</param>
     /// <param name="logger">The logger.</param>
-    public AemetValuesController(IAemetValuesService aemetValuesService, ILogger<AemetValuesController> logger)
+    public AemetValuesController(IMediator mediator, ILogger<AemetValuesController> logger)
     {
-        _aemetValuesService = aemetValuesService;
+        _mediator = mediator;
         _logger = logger;
     }
 
@@ -53,10 +56,8 @@ public sealed class AemetValuesController : ControllerBase
 
         try
         {
-            Result<List<MarineZonePredictionDto>> result = await _aemetValuesService.GetAemetMarineZonePredictionValuesAsync(
-                request.ApiKey,
-                request.Url,
-                request.Zone,
+            Result<List<MarineZonePredictionDto>> result = await _mediator.Send(
+                new GetAemetValuesQuery(request.ApiKey, request.Url, request.Zone),
                 cancellationToken);
 
             if (result.IsFailure)
