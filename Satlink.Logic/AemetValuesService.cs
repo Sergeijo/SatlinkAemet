@@ -20,6 +20,7 @@ public class AemetValuesService : IAemetValuesService
     /// Initializes a new instance of the <see cref="AemetValuesService"/> class.
     /// </summary>
     /// <param name="openDataClient">AEMET OpenData client adapter.</param>
+    /// <param name="jsonSerializer">JSON serializer.</param>
     public AemetValuesService(IAemetOpenDataClient openDataClient, IAemetJsonSerializer jsonSerializer)
     {
         _openDataClient = openDataClient ?? throw new ArgumentNullException(nameof(openDataClient));

@@ -9,6 +9,12 @@ public sealed class MarineZonePredictionDto
 
     public string nombre { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Populated only when the DTO represents a record retrieved from the SQLite
+    /// download cache. Null when coming directly from the AEMET API.
+    /// </summary>
+    public DateOnly? fechaDescarga { get; set; }
+
     public OrigenDto origen { get; set; } = new OrigenDto();
 
     public SituacionDto situacion { get; set; } = new SituacionDto();

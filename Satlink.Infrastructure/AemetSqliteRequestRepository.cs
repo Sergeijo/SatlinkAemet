@@ -11,39 +11,53 @@ using Satlink.Logic;
 
 namespace Satlink.Infrastructure;
 
-internal sealed class RequestsRepository : IRequestsRepository
+/// <summary>
+/// SQLite implementation of <see cref="IRequestsRepository"/>.
+/// Registered as a keyed service ("Sqlite") so it can coexist with the
+/// SQL Server implementation without ambiguity.
+/// </summary>
+internal sealed class AemetSqliteRequestRepository : IRequestsRepository
 {
-    private readonly AemetDbContext _dbContext;
+    private readonly AemetSqliteDbContext _dbContext;
 
-    public RequestsRepository(AemetDbContext dbContext)
+    public AemetSqliteRequestRepository(AemetSqliteDbContext dbContext)
     {
         _dbContext = dbContext;
     }
 
+    /// <inheritdoc />
     public Task<List<PersistedRequest>> GetAllAsync(CancellationToken cancellationToken)
-    {
-        return _dbContext.zonePredictionsItems
+        => _dbContext.AemetDownloads
             .AsNoTracking()
             .ToListAsync(cancellationToken);
-    }
 
+    /// <inheritdoc />
     public Task<PersistedRequest?> GetByIdAsync(string id, CancellationToken cancellationToken)
-    {
-        return _dbContext.zonePredictionsItems
+        => _dbContext.AemetDownloads
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.id == id, cancellationToken);
-    }
 
+    /// <inheritdoc />
     public async Task<PersistedRequest> CreateAsync(PersistedRequest request, CancellationToken cancellationToken)
     {
-        await _dbContext.zonePredictionsItems.AddAsync(request, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _dbContext.AemetDownloads.AddAsync(request, cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            // Unique constraint violation from a concurrent request – ignore.
+            _dbContext.ChangeTracker.Clear();
+        }
+
         return request;
     }
 
+    /// <inheritdoc />
     public async Task<PersistedRequest?> UpdateAsync(string id, PersistedRequest request, CancellationToken cancellationToken)
     {
-        PersistedRequest? existing = await _dbContext.zonePredictionsItems
+        PersistedRequest? existing = await _dbContext.AemetDownloads
             .FirstOrDefaultAsync(x => x.id == id, cancellationToken);
 
         if (existing is null)
@@ -60,9 +74,10 @@ internal sealed class RequestsRepository : IRequestsRepository
         return existing;
     }
 
+    /// <inheritdoc />
     public async Task<bool> DeleteAsync(string id, CancellationToken cancellationToken)
     {
-        PersistedRequest? existing = await _dbContext.zonePredictionsItems
+        PersistedRequest? existing = await _dbContext.AemetDownloads
             .FirstOrDefaultAsync(x => x.id == id, cancellationToken);
 
         if (existing is null)
@@ -70,24 +85,19 @@ internal sealed class RequestsRepository : IRequestsRepository
             return false;
         }
 
-        _dbContext.zonePredictionsItems.Remove(existing);
+        _dbContext.AemetDownloads.Remove(existing);
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;
     }
 
-    public Task<bool> ExistsAsync(string zoneId, DateOnly fechaDescarga, CancellationToken cancellationToken)
-    {
-        return _dbContext.zonePredictionsItems
-            .AnyAsync(x => x.id == zoneId && x.FechaDescarga == fechaDescarga, cancellationToken);
-    }
-
+    /// <inheritdoc />
     public async Task<PersistedRequest?> UpdateAsync(
         string id,
         DateOnly fechaDescarga,
         PersistedRequest request,
         CancellationToken cancellationToken)
     {
-        PersistedRequest? existing = await _dbContext.zonePredictionsItems
+        PersistedRequest? existing = await _dbContext.AemetDownloads
             .FirstOrDefaultAsync(x => x.id == id && x.FechaDescarga == fechaDescarga, cancellationToken);
 
         if (existing is null)
@@ -104,12 +114,13 @@ internal sealed class RequestsRepository : IRequestsRepository
         return existing;
     }
 
+    /// <inheritdoc />
     public async Task<bool> DeleteAsync(
         string id,
         DateOnly fechaDescarga,
         CancellationToken cancellationToken)
     {
-        PersistedRequest? existing = await _dbContext.zonePredictionsItems
+        PersistedRequest? existing = await _dbContext.AemetDownloads
             .FirstOrDefaultAsync(x => x.id == id && x.FechaDescarga == fechaDescarga, cancellationToken);
 
         if (existing is null)
@@ -117,8 +128,13 @@ internal sealed class RequestsRepository : IRequestsRepository
             return false;
         }
 
-        _dbContext.zonePredictionsItems.Remove(existing);
+        _dbContext.AemetDownloads.Remove(existing);
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;
     }
+
+    /// <inheritdoc />
+    public Task<bool> ExistsAsync(string zoneId, DateOnly fechaDescarga, CancellationToken cancellationToken)
+        => _dbContext.AemetDownloads
+            .AnyAsync(x => x.id == zoneId && x.FechaDescarga == fechaDescarga, cancellationToken);
 }

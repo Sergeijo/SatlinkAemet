@@ -1,7 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+
+using MediatR;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,8 @@ using Satlink.Api.Contracts;
 using Satlink.Api.Dtos.Requests;
 using Satlink.Contracts.Dtos.Requests;
 using Satlink.Logic;
+using Satlink.Logic.CQRS.Requests.Commands;
+using Satlink.Logic.CQRS.Requests.Queries;
 
 using Xunit;
 
@@ -25,13 +28,14 @@ public sealed class RequestsControllerTests
     public async Task GetAllAsync_ServiceOk_RetornaOkAsync()
     {
         // Arrange
-        IRequestsService service = Substitute.For<IRequestsService>();
+        IMediator mediator = Substitute.For<IMediator>();
         ILogger<RequestsController> logger = Substitute.For<ILogger<RequestsController>>();
 
         List<RequestDto> items = new List<RequestDto> { new RequestDto { Id = "1", Nombre = "a" } };
-        service.GetAllAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(Result.Ok(items)));
+        mediator.Send(Arg.Any<GetAllRequestsQuery>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(Result.Ok(items)));
 
-        RequestsController controller = new RequestsController(service, logger)
+        RequestsController controller = new RequestsController(mediator, logger)
         {
             ControllerContext = new ControllerContext
             {
@@ -52,13 +56,13 @@ public sealed class RequestsControllerTests
     public async Task GetByIdAsync_NoExiste_RetornaNotFoundAsync()
     {
         // Arrange
-        IRequestsService service = Substitute.For<IRequestsService>();
+        IMediator mediator = Substitute.For<IMediator>();
         ILogger<RequestsController> logger = Substitute.For<ILogger<RequestsController>>();
 
-        service.GetByIdAsync("1", Arg.Any<CancellationToken>())
+        mediator.Send(Arg.Any<GetRequestByIdQuery>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result.Fail<RequestDto>("Request not found.")));
 
-        RequestsController controller = new RequestsController(service, logger)
+        RequestsController controller = new RequestsController(mediator, logger)
         {
             ControllerContext = new ControllerContext
             {
@@ -79,13 +83,14 @@ public sealed class RequestsControllerTests
     public async Task CreateAsync_ServiceOk_RetornaCreatedAsync()
     {
         // Arrange
-        IRequestsService service = Substitute.For<IRequestsService>();
+        IMediator mediator = Substitute.For<IMediator>();
         ILogger<RequestsController> logger = Substitute.For<ILogger<RequestsController>>();
 
         RequestDto created = new RequestDto { Id = "generated", Nombre = "x" };
-        service.CreateAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(Result.Ok(created)));
+        mediator.Send(Arg.Any<CreateRequestCommand>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(Result.Ok(created)));
 
-        RequestsController controller = new RequestsController(service, logger)
+        RequestsController controller = new RequestsController(mediator, logger)
         {
             ControllerContext = new ControllerContext
             {
@@ -108,13 +113,13 @@ public sealed class RequestsControllerTests
     public async Task UpdateAsync_NoExiste_RetornaNotFoundAsync()
     {
         // Arrange
-        IRequestsService service = Substitute.For<IRequestsService>();
+        IMediator mediator = Substitute.For<IMediator>();
         ILogger<RequestsController> logger = Substitute.For<ILogger<RequestsController>>();
 
-        service.UpdateAsync("1", Arg.Any<string>(), Arg.Any<CancellationToken>())
+        mediator.Send(Arg.Any<UpdateRequestCommand>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result.Fail<RequestDto>("Request not found.")));
 
-        RequestsController controller = new RequestsController(service, logger)
+        RequestsController controller = new RequestsController(mediator, logger)
         {
             ControllerContext = new ControllerContext
             {
@@ -136,12 +141,13 @@ public sealed class RequestsControllerTests
     public async Task DeleteAsync_NoExiste_RetornaNotFoundAsync()
     {
         // Arrange
-        IRequestsService service = Substitute.For<IRequestsService>();
+        IMediator mediator = Substitute.For<IMediator>();
         ILogger<RequestsController> logger = Substitute.For<ILogger<RequestsController>>();
 
-        service.DeleteAsync("1", Arg.Any<CancellationToken>()).Returns(Task.FromResult(Result.Fail("Request not found.")));
+        mediator.Send(Arg.Any<DeleteRequestCommand>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(Result.Fail("Request not found.")));
 
-        RequestsController controller = new RequestsController(service, logger)
+        RequestsController controller = new RequestsController(mediator, logger)
         {
             ControllerContext = new ControllerContext
             {
