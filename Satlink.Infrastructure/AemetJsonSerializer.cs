@@ -15,4 +15,6 @@ public sealed class AemetJsonSerializer : IAemetJsonSerializer
 
         return JsonConvert.DeserializeObject<T>(json);
     }
+
+    public string Serialize<T>(T value) => JsonConvert.SerializeObject(value);
 }

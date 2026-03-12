@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ using Satlink.Domain.Models;
 namespace Satlink.Logic;
 
 /// <summary>
-/// Persistence port for <see cref="Request"/> CRUD operations.
+/// Persistence port for <see cref="PersistedRequest"/> CRUD operations.
 /// </summary>
 public interface IRequestsRepository
 {
@@ -37,4 +38,23 @@ public interface IRequestsRepository
     /// </summary>
     /// <returns>True if deleted; false if not found.</returns>
     Task<bool> DeleteAsync(string id, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns <c>true</c> if a record already exists for the given zone and download date.
+    /// </summary>
+    Task<bool> ExistsAsync(string zoneId, DateOnly fechaDescarga, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Updates an existing record by composite key <paramref name="id"/> +
+    /// <paramref name="fechaDescarga"/>.
+    /// </summary>
+    /// <returns>The updated entity, or <c>null</c> if not found.</returns>
+    Task<PersistedRequest?> UpdateAsync(string id, DateOnly fechaDescarga, PersistedRequest request, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Deletes an existing record by composite key <paramref name="id"/> +
+    /// <paramref name="fechaDescarga"/>.
+    /// </summary>
+    /// <returns>True if deleted; false if not found.</returns>
+    Task<bool> DeleteAsync(string id, DateOnly fechaDescarga, CancellationToken cancellationToken);
 }

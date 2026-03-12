@@ -56,10 +56,9 @@ namespace Satlink.Tests
 
         internal sealed class DummyJsonSerializer : IAemetJsonSerializer
         {
-            public T? Deserialize<T>(string json)
-            {
-                return default;
-            }
+            public T? Deserialize<T>(string json) => default;
+
+            public string Serialize<T>(T value) => string.Empty;
         }
     }
 

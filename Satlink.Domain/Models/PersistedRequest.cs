@@ -1,3 +1,5 @@
+using System;
+
 namespace Satlink.Domain.Models;
 
 /// <summary>
@@ -14,4 +16,10 @@ public class PersistedRequest
     public string id { get; set; } = string.Empty;
 
     public string nombre { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Download date (without time). Used as part of the composite unique key
+    /// in the SQLite AEMET downloads store.
+    /// </summary>
+    public DateOnly? FechaDescarga { get; set; }
 }
