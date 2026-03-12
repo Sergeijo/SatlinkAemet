@@ -1,10 +1,12 @@
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
+using MediatR;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 using NSubstitute;
 
@@ -12,6 +14,7 @@ using Satlink.Api.Controllers;
 using Satlink.Api.Contracts;
 using Satlink.Contracts.Dtos.Aemet;
 using Satlink.Logic;
+using Satlink.Logic.CQRS.AemetValues.Queries;
 
 using Xunit;
 
@@ -23,16 +26,16 @@ public sealed class AemetValuesControllerTests
     public async Task GetValuesAsync_ServiceSuccess_ReturnsOk()
     {
         // Arrange
-        IAemetValuesService service = Substitute.For<IAemetValuesService>();
-        Microsoft.Extensions.Logging.ILogger<AemetValuesController> logger = Substitute.For<Microsoft.Extensions.Logging.ILogger<AemetValuesController>>();
+        IMediator mediator = Substitute.For<IMediator>();
+        ILogger<AemetValuesController> logger = Substitute.For<ILogger<AemetValuesController>>();
 
         List<MarineZonePredictionDto> expected = new List<MarineZonePredictionDto>();
 
-        service
-            .GetAemetMarineZonePredictionValuesAsync("key", "https://example.com", 1, Arg.Any<CancellationToken>())
+        mediator
+            .Send(Arg.Any<GetAemetValuesQuery>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result.Ok(expected)));
 
-        AemetValuesController controller = new AemetValuesController(service, logger);
+        AemetValuesController controller = new AemetValuesController(mediator, logger);
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         GetAemetValuesRequestDto dto = new GetAemetValuesRequestDto { ApiKey = "key", Url = "https://example.com", Zone = 1 };
@@ -45,21 +48,21 @@ public sealed class AemetValuesControllerTests
         ApiResponse<List<MarineZonePredictionDto>> response = Assert.IsType<ApiResponse<List<MarineZonePredictionDto>>>(ok.Value);
         Assert.NotNull(response.Data);
 
-        await service.Received(1).GetAemetMarineZonePredictionValuesAsync("key", "https://example.com", 1, Arg.Any<CancellationToken>());
+        await mediator.Received(1).Send(Arg.Any<GetAemetValuesQuery>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
     public async Task GetValuesAsync_ServiceFailure_ReturnsBadRequest()
     {
         // Arrange
-        IAemetValuesService service = Substitute.For<IAemetValuesService>();
-        Microsoft.Extensions.Logging.ILogger<AemetValuesController> logger = Substitute.For<Microsoft.Extensions.Logging.ILogger<AemetValuesController>>();
+        IMediator mediator = Substitute.For<IMediator>();
+        ILogger<AemetValuesController> logger = Substitute.For<ILogger<AemetValuesController>>();
 
-        service
-            .GetAemetMarineZonePredictionValuesAsync("key", "https://example.com", 1, Arg.Any<CancellationToken>())
+        mediator
+            .Send(Arg.Any<GetAemetValuesQuery>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(Result.Fail<List<MarineZonePredictionDto>>("boom")));
 
-        AemetValuesController controller = new AemetValuesController(service, logger);
+        AemetValuesController controller = new AemetValuesController(mediator, logger);
         controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
 
         GetAemetValuesRequestDto dto = new GetAemetValuesRequestDto { ApiKey = "key", Url = "https://example.com", Zone = 1 };
