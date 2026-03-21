@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Satlink.Contracts.Dtos.Aemet;
 using Satlink.Domain.Models;
+using Satlink.Logic.Messaging.Events;
 
 namespace Satlink.Logic.CQRS.AemetValues.Commands;
 
@@ -27,11 +28,14 @@ public sealed class SaveAemetDownloadsCommandHandler
     : IRequestHandler<SaveAemetDownloadsCommand, Result>
 {
     private readonly IRequestsRepository _sqliteRepository;
+    private readonly IEventBus _eventBus;
 
     public SaveAemetDownloadsCommandHandler(
-        [FromKeyedServices("Sqlite")] IRequestsRepository sqliteRepository)
+        [FromKeyedServices("Sqlite")] IRequestsRepository sqliteRepository,
+        IEventBus eventBus)
     {
         _sqliteRepository = sqliteRepository;
+        _eventBus = eventBus;
     }
 
     public async Task<Result> Handle(
@@ -41,6 +45,7 @@ public sealed class SaveAemetDownloadsCommandHandler
         try
         {
             DateOnly today = DateOnly.FromDateTime(DateTime.UtcNow);
+            int saved = 0;
 
             foreach (MarineZonePredictionDto dto in request.Predictions)
             {
@@ -56,6 +61,19 @@ public sealed class SaveAemetDownloadsCommandHandler
                 await _sqliteRepository
                     .CreateAsync(MapToEntity(dto, today), cancellationToken)
                     .ConfigureAwait(false);
+
+                saved++;
+            }
+
+            if (saved > 0)
+            {
+                await _eventBus.PublishAsync(
+                    new AemetDownloadSavedIntegrationEvent
+                    {
+                        ZonesProcessed = saved,
+                        SavedAt = DateTime.UtcNow
+                    },
+                    cancellationToken);
             }
 
             return Result.Ok();

@@ -1,0 +1,32 @@
+# docker-compose.yml
+# Provides the external infrastructure services required by Satlink.Api:
+#   - RabbitMQ: message broker used by MassTransit
+#
+# Usage:
+#   docker compose up -d          # start in background
+#   docker compose down           # stop and remove containers
+#   docker compose down -v        # stop and remove containers + volumes (clean state)
+#
+# RabbitMQ Management UI: http://localhost:15672  (guest / guest)
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: satlink-rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"    # AMQP – used by MassTransit
+      - "15672:15672"  # HTTP management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  rabbitmq_data:
