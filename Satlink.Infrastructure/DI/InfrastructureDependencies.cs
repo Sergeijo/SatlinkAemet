@@ -7,12 +7,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
+using Satlink.Domain.Interfaces;
+using Satlink.Logic;
 using Satlink.Infrastructure;
 using Satlink.Infrastructure.Dapper;
 using Satlink.Infrastructure.DbContxt;
 using Satlink.Infrastructure.Messaging;
 using Satlink.Infrastructure.Messaging.Consumers;
-using Satlink.Logic;
 
 namespace Satlink.Infrastructure.DI
 {

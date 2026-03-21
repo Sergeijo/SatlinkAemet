@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 using Satlink.Domain.Models;
+using Satlink.Domain.Interfaces;
+using Satlink.Domain.Specifications;
 using Satlink.Infrastructure.DbContxt;
 
 namespace Satlink.Infrastructure
@@ -35,12 +37,11 @@ namespace Satlink.Infrastructure
         }
 
         /// <inheritdoc />
-        public async Task<PersistedRequest?> GetAemetItemByIdAsync(int id, CancellationToken cancellationToken)
+        public async Task<PersistedRequest?> GetAemetItemByAsync(ISpecification<PersistedRequest> specification, CancellationToken cancellationToken)
         {
-            // NOTE: Domain model uses string id currently.
             return await _aemetDbContext.zonePredictionsItems
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.id == id.ToString(), cancellationToken);
+                .FirstOrDefaultAsync(specification.ToExpression(), cancellationToken);
         }
 
         /// <inheritdoc />
