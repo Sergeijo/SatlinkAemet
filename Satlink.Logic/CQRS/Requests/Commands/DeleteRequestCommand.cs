@@ -3,12 +3,16 @@ using System.Threading.Tasks;
 
 using MediatR;
 
+using Satlink.Logic.CQRS.Behaviours;
+
 namespace Satlink.Logic.CQRS.Requests.Commands;
 
 /// <summary>
 /// Command to delete a request.
+/// Implements <see cref="ITransactionalCommand"/> so the operation is atomic.
 /// </summary>
-public sealed record DeleteRequestCommand(string Id) : IRequest<Result>;
+public sealed record DeleteRequestCommand(string Id)
+    : IRequest<Result>, ITransactionalCommand;
 
 /// <summary>
 /// Handler for <see cref="DeleteRequestCommand"/>.

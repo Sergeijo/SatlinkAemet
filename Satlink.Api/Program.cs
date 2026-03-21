@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
+using Satlink.Api.Middleware;
+using Satlink.Api.Services;
 using Satlink.Infrastructure.DI;
 using Satlink.Logic.DI;
 using Satlink.Logic;
@@ -86,6 +88,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+// IHttpContextAccessor is required by UserContext to read JWT claims.
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUserContext, UserContext>();
+
 // Register project dependencies.
 builder.Services.RegisterInfrastructureDependencies(builder.Configuration);
 builder.Services.RegisterLogicDependencies();
@@ -97,11 +103,23 @@ app.UseHttpsRedirection();
 
 app.UseCors(CorsPolicyName);
 
+// Global exception handler: must be registered early to catch all pipeline exceptions.
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
 app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseAuthentication();
+
+// Request logger: registered after UseAuthentication so IUserContext has JWT claims.
+app.UseMiddleware<RequestLoggingMiddleware>();
+
 app.UseAuthorization();
+
+// Ensure the SQL Server database and all EF Core tables (including MassTransit outbox
+// tables: InboxState, OutboxMessage, OutboxState) are created before the app starts
+// serving requests and before MassTransit's background services begin polling them.
+await app.Services.InitializeSqlServerAsync();
 
 app.MapControllers();
 
