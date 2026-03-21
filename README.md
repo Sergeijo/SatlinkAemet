@@ -55,37 +55,37 @@ HTTP Request
      │
      ▼
 ┌─────────────────────────────────────────────┐
-│  Satlink.Api  (Presentation)                │
-│  Controllers · Validators · Middlewares     │
-│  GlobalExceptionMiddleware                  │
-│  RequestLoggingMiddleware (+ IUserContext)  │
+│  Satlink.Api  (Presentation)                        │
+│  Controllers · Validators · Middlewares             │
+│  GlobalExceptionMiddleware                          │
+│  RequestLoggingMiddleware (+ IUserContext)          │
 └───────────────────┬─────────────────────────┘
-                    │  MediatR (IRequest / ICommand)
-                    ▼
+                        │  MediatR (IRequest / ICommand)
+                        ▼
 ┌─────────────────────────────────────────────┐
-│  Satlink.Logic  (Application)               │
-│  CQRS pipeline behaviours:                  │
-│    ExceptionBehaviour                       │
-│    LoggingBehaviour  ◄── IUserContext       │
-│    ValidationBehaviour (FluentValidation)   │
-│    TransactionBehaviour (ITransactionalCmd) │
-│  Services · Interfaces · Integration events │
+│  Satlink.Logic  (Application)                       │
+│  CQRS pipeline behaviours:                          │
+│    ExceptionBehaviour                               │
+│    LoggingBehaviour  ◄── IUserContext              │
+│    ValidationBehaviour (FluentValidation)           │
+│    TransactionBehaviour (ITransactionalCmd)         │
+│  Services · Interfaces · Integration events.        │
 └──────────┬────────────────┬─────────────────┘
-           │ EF Core / SQL  │ IEventBus
-           ▼                ▼
+             │ EF Core / SQL     │ IEventBus
+             ▼                  ▼
 ┌──────────────────┐  ┌────────────────────────┐
-│ Satlink.Infra    │  │ MassTransit            │
-│ AemetDbContext   │  │ RabbitMQ transport     │
-│ (SQL Server)     │  │ EF Core outbox         │
-│ AemetSqliteCtx   │  │ Consumers              │
-│ Dapper repos     │  └────────────────────────┘
+│ Satlink.Infra       │  │ MassTransit                 │
+│ AemetDbContext      │  │ RabbitMQ transport          │
+│ (SQL Server)        │  │ EF Core outbox              │
+│ AemetSqliteCtx      │  │ Consumers                   │
+│ Dapper repos        │  └────────────────────────┘
 └──────────────────┘
            │
            ▼
 ┌─────────────────────────────────────────────┐
-│  Satlink.Domain                             │
-│  PersistedRequest · Origen · Situacion      │
-│  Prediccion · Zona                          │
+│  Satlink.Domain                                     │
+│  PersistedRequest · Origen · Situacion              │
+│  Prediccion · Zona                                  │
 └─────────────────────────────────────────────┘
 ```
 
