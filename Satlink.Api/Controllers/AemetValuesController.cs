@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -20,6 +21,7 @@ namespace Satlink.Api.Controllers;
 /// <summary>
 /// Endpoints for AEMET values and the SQLite download cache.
 /// </summary>
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public sealed class AemetValuesController : ControllerBase

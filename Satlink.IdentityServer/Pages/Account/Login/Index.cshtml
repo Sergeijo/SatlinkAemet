@@ -1,0 +1,50 @@
+@page
+@model Satlink.IdentityServer.Pages.Account.Login.IndexModel
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Satlink – Iniciar sesión</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        body { margin: 0; font-family: system-ui, sans-serif; background: #f0f4f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,.1); padding: 48px 40px; width: 380px; }
+        .logo { text-align: center; margin-bottom: 8px; font-size: 2.2rem; }
+        h1 { text-align: center; color: #1e40af; margin: 0 0 4px; font-size: 1.5rem; }
+        .sub { text-align: center; color: #6b7280; font-size: .9rem; margin-bottom: 32px; }
+        label { display: block; font-size: .85rem; font-weight: 600; color: #374151; margin-bottom: 5px; }
+        input[type=text], input[type=password] { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; margin-bottom: 20px; transition: border-color .15s; }
+        input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.2); }
+        .btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+        .btn:hover { opacity: .92; }
+        .error { color: #b91c1c; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 8px; padding: 10px 14px; margin-bottom: 20px; font-size: .9rem; }
+        .hint { color: #9ca3af; font-size: .78rem; text-align: center; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo">🌊</div>
+        <h1>Satlink AEMET</h1>
+        <p class="sub">Predicciones Marítimas</p>
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="error">@Model.ErrorMessage</div>
+        }
+
+        <form method="post">
+            <label asp-for="Input.Username">Usuario</label>
+            <input asp-for="Input.Username" autocomplete="username" autofocus placeholder="alice / bob" />
+
+            <label asp-for="Input.Password">Contraseña</label>
+            <input asp-for="Input.Password" type="password" autocomplete="current-password" placeholder="alice123 / bob123" />
+
+            <input type="hidden" asp-for="Input.ReturnUrl" />
+            <button type="submit" class="btn">Iniciar sesión</button>
+        </form>
+
+        <p class="hint">Usuarios mock: alice/alice123 · bob/bob123</p>
+    </div>
+</body>
+</html>

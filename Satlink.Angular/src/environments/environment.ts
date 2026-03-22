@@ -1,9 +1,14 @@
 export const environment = {
   production: false,
 
-  // Satlink.Api base URL (WPF default: http://localhost:5273/)
-  // Use same-origin in dev; requests are proxied to Satlink.Api via proxy.conf.json
+  // Satlink.Api base URL — empty string uses the Angular dev-server proxy (proxy.conf.json)
   baseApiUrl: '',
+
+  // Angular app origin — used for OIDC redirect URIs (no window dependency)
+  appUrl: 'http://localhost:4200',
+
+  // Duende Identity Server URL
+  identityServerUrl: 'https://localhost:5001',
 
   // AEMET base URL (WPF AppConfig:url)
   aemetUrl: 'https://opendata.aemet.es/opendata/api/prediccion/maritima/altamar/area',
