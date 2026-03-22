@@ -1,4 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs/operators';
+
+import { OidcSecurityService } from 'angular-auth-oidc-client';
 
 @Component({
   selector: 'app-header',
@@ -11,6 +15,12 @@ import { Component } from '@angular/core';
           <span class="app-title">Satlink AEMET</span>
         </div>
         <div class="subtitle">Predicciones Marítimas</div>
+        @if (isAuthenticated()) {
+          <div class="user-section">
+            <span class="username">{{ userName() }}</span>
+            <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
+          </div>
+        }
       </div>
     </header>
   `,
@@ -55,6 +65,51 @@ import { Component } from '@angular/core';
       opacity: 0.9;
       font-weight: 500;
     }
+
+    .user-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .username {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .logout-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: white;
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 255, 255, 0.28);
+    }
   `]
 })
-export class HeaderComponent {}
+export class HeaderComponent {
+  private readonly oidcService = inject(OidcSecurityService);
+
+  readonly isAuthenticated = toSignal(
+    this.oidcService.isAuthenticated$.pipe(map(({ isAuthenticated }) => isAuthenticated)),
+    { initialValue: false }
+  );
+
+  readonly userName = toSignal(
+    this.oidcService.userData$.pipe(
+      map(({ userData }) => userData?.name ?? userData?.preferred_username ?? userData?.email ?? '')
+    ),
+    { initialValue: '' }
+  );
+
+  logout(): void {
+    this.oidcService.logoff().subscribe();
+  }
+}
+

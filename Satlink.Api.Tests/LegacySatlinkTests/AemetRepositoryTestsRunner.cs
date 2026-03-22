@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 
+using Satlink.Domain.Interfaces;
 using Satlink.Infrastructure;
 
 namespace Satlink.Api.Tests.LegacySatlinkTests;

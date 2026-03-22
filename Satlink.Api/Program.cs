@@ -1,4 +1,5 @@
 using System.Text;
+using System.IdentityModel.Tokens.Jwt;
 
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -8,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
 using Satlink.Api.Middleware;
-using Satlink.Api.Services;
 using Satlink.Infrastructure.DI;
 using Satlink.Logic.DI;
 using Satlink.Logic;
@@ -69,28 +69,72 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 JwtOptions jwtOptions = builder.Configuration.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();
 
+const string IdentityServerScheme = "IdentityServer";
+const string CombinedScheme = "CombinedJwtScheme";
+string identityServerAuthority = builder.Configuration["IdentityServer:Authority"] ?? "https://localhost:5001";
+
 // Configure authentication.
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+// AddPolicyScheme acts as a router: it inspects the token's 'iss' claim before
+// any validation runs and forwards the request to the correct underlying scheme.
+// This avoids the ambiguity of trying both schemes for every request and ensures
+// that UseAuthentication() populates HttpContext.User with the right identity.
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CombinedScheme;
+    options.DefaultChallengeScheme = CombinedScheme;
+})
+.AddPolicyScheme(CombinedScheme, "Combined JWT Bearer", options =>
+{
+    options.ForwardDefaultSelector = context =>
     {
-        options.TokenValidationParameters = new TokenValidationParameters
+        string? authorization = context.Request.Headers.Authorization;
+
+        if (!string.IsNullOrEmpty(authorization) &&
+            authorization.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
         {
-            ValidIssuer = jwtOptions.Issuer,
-            ValidAudience = jwtOptions.Audience,
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)),
-            ClockSkew = TimeSpan.FromMinutes(1)
-        };
-    });
+            string token = authorization["Bearer ".Length..].Trim();
+            try
+            {
+                JwtSecurityToken jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+                if (jwt.Issuer.StartsWith(identityServerAuthority, StringComparison.OrdinalIgnoreCase))
+                    return IdentityServerScheme;
+            }
+            catch { }
+        }
+
+        return JwtBearerDefaults.AuthenticationScheme;
+    };
+})
+.AddJwtBearer(options =>
+{
+    // Legacy symmetric-key tokens issued by AuthController.
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidIssuer = jwtOptions.Issuer,
+        ValidAudience = jwtOptions.Audience,
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)),
+        ClockSkew = TimeSpan.FromMinutes(1)
+    };
+})
+.AddJwtBearer(IdentityServerScheme, options =>
+{
+    // Tokens issued by Duende Identity Server.
+    // Keys are downloaded automatically from the discovery document.
+    options.Authority = identityServerAuthority;
+    options.Audience = "satlink-api";
+    options.RequireHttpsMetadata = false; // dev/mock — set to true in production
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateAudience = true,
+        ClockSkew = TimeSpan.FromMinutes(1)
+    };
+});
 
 builder.Services.AddAuthorization();
-
-// IHttpContextAccessor is required by UserContext to read JWT claims.
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<IUserContext, UserContext>();
 
 // Register project dependencies.
 builder.Services.RegisterInfrastructureDependencies(builder.Configuration);

@@ -7,12 +7,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
+using Microsoft.AspNetCore.Http;
+
+using Satlink.Domain.Interfaces;
+using Satlink.Logic;
 using Satlink.Infrastructure;
 using Satlink.Infrastructure.Dapper;
 using Satlink.Infrastructure.DbContxt;
 using Satlink.Infrastructure.Messaging;
 using Satlink.Infrastructure.Messaging.Consumers;
-using Satlink.Logic;
+using Satlink.Infrastructure.Services;
 
 namespace Satlink.Infrastructure.DI
 {
@@ -54,6 +58,10 @@ namespace Satlink.Infrastructure.DI
             RegisterMassTransit(services, configuration);
 
             services.AddHostedService<AemetSqliteDatabaseInitializer>();
+
+            // IHttpContextAccessor is required by UserContext to read JWT claims.
+            services.AddHttpContextAccessor();
+            services.AddScoped<IUserContext, UserContext>();
         }
 
         /// <summary>

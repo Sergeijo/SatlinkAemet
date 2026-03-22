@@ -3,11 +3,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
+using System.Net.Http;
 using System.Text;
 using System.Windows;
 using Microsoft.Extensions.Options;
 
 using Satlink.ApiClient;
+using Satlink.Auth;
+using Satlink.Login;
 
 namespace Satlink
 {
@@ -32,8 +35,18 @@ namespace Satlink
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             ServiceProvider = serviceCollection.BuildServiceProvider();
 			ObservableObject.SetLogger(ServiceProvider.GetRequiredService<ILogger<ObservableObject>>());
-            var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
-            mainWindow.Show();
+
+			ShutdownMode = ShutdownMode.OnExplicitShutdown;
+			var loginWindow = ServiceProvider.GetRequiredService<LoginWindow>();
+			if (loginWindow.ShowDialog() != true)
+			{
+				Shutdown();
+				return;
+			}
+
+			ShutdownMode = ShutdownMode.OnLastWindowClose;
+			var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
+			mainWindow.Show();
         }
 
         private void ConfigureServices(IServiceCollection serviceCollection)
@@ -51,10 +64,28 @@ namespace Satlink
 				config.AddProvider(new FileLoggerProvider(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs"), LogLevel.Information));
             });
 
+            string authority    = Configuration["IdentityServer:Authority"]    ?? "https://localhost:5001";
+            string clientId     = Configuration["IdentityServer:ClientId"]     ?? "satlink-wpf";
+            string clientSecret = Configuration["IdentityServer:ClientSecret"] ?? "satlink-wpf-secret";
+            string scope        = Configuration["IdentityServer:Scope"]        ?? "satlink-api openid profile";
+
+            // Named HttpClient used exclusively for Identity Server token requests.
+            serviceCollection.AddHttpClient("IdentityServer");
+
+            serviceCollection.AddSingleton<ITokenProvider>(sp =>
+                new IdentityServerTokenProvider(
+                    sp.GetRequiredService<IHttpClientFactory>(),
+                    authority, clientId, clientSecret, scope));
+
+            serviceCollection.AddTransient<AuthTokenDelegatingHandler>();
+            serviceCollection.AddTransient<LoginViewModel>();
+            serviceCollection.AddTransient<LoginWindow>();
+
             serviceCollection.AddHttpClient<IAemetValuesApiClient, AemetValuesApiClient>(client =>
             {
                 client.BaseAddress = new Uri(baseUrl, UriKind.Absolute);
-            });
+            })
+            .AddHttpMessageHandler<AuthTokenDelegatingHandler>();
 
             serviceCollection.AddScoped<IAemetValuesProvider, AemetValuesProvider>();
 
