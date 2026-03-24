@@ -1,5 +1,5 @@
 
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ViewChild } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { catchError, concat, defer, map, Observable, of, skip, switchMap } from 'rxjs';
@@ -14,6 +14,7 @@ import { environment } from '../../../environments/environment';
 import { AemetApiKeyService } from '../../core/api/aemet-api-key.service';
 import { AemetValuesService } from '../../core/api/aemet-values.service';
 import { GetAemetValuesRequestDto, Zona } from '../../core/api/aemet.types';
+import { MapDialogComponent } from '../map/components/map-dialog.component';
 
 type ZoneOption = { key: number; value: string };
 
@@ -26,12 +27,15 @@ type ZoneOption = { key: number; value: string };
     ButtonModule,
     TableModule,
     ProgressSpinnerModule,
-    MessageModule
+    MessageModule,
+    MapDialogComponent
 ],
   templateUrl: './aemet-page.component.html',
   styleUrl: './aemet-page.component.scss'
 })
 export class AemetPageComponent {
+  @ViewChild(MapDialogComponent) mapDialog!: MapDialogComponent;
+
   private readonly apiKeyService = inject(AemetApiKeyService);
   private readonly aemetValues = inject(AemetValuesService);
 
@@ -122,6 +126,10 @@ export class AemetPageComponent {
     a.click();
 
     URL.revokeObjectURL(url);
+  }
+
+  showMap() {
+    this.mapDialog.show();
   }
 
   trackByZonaId(_index: number, item: Zona) {
