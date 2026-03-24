@@ -1,0 +1,55 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '90vw', height: '85vh' }"
+  header="Mapa de Madrid - Seguimiento de Vehículo"
+  (onHide)="onDialogHide()">
+  
+  <div class="map-container-wrapper">
+    <div #mapContainer class="map-container"></div>
+    
+    @if (tooltipPosition() && vehicleSpecs()) {
+      <div 
+        class="vehicle-tooltip"
+        [style.left.px]="tooltipPosition()!.x"
+        [style.top.px]="tooltipPosition()!.y">
+        <div class="tooltip-content">
+          <h3 class="tooltip-title">Información del Vehículo</h3>
+          <div class="tooltip-grid">
+            <div class="tooltip-item">
+              <span class="tooltip-label">Marca:</span>
+              <span class="tooltip-value">{{ vehicleSpecs()!.marca }}</span>
+            </div>
+            <div class="tooltip-item">
+              <span class="tooltip-label">Modelo:</span>
+              <span class="tooltip-value">{{ vehicleSpecs()!.modelo }}</span>
+            </div>
+            <div class="tooltip-item">
+              <span class="tooltip-label">Motor:</span>
+              <span class="tooltip-value">{{ vehicleSpecs()!.motor }}</span>
+            </div>
+            <div class="tooltip-item">
+              <span class="tooltip-label">Potencia:</span>
+              <span class="tooltip-value">{{ vehicleSpecs()!.potencia }}</span>
+            </div>
+            <div class="tooltip-item">
+              <span class="tooltip-label">Combustible:</span>
+              <span class="tooltip-value">{{ vehicleSpecs()!.combustible }}</span>
+            </div>
+            <div class="tooltip-item">
+              <span class="tooltip-label">Año:</span>
+              <span class="tooltip-value">{{ vehicleSpecs()!.anio }}</span>
+            </div>
+            <div class="tooltip-item">
+              <span class="tooltip-label">Color:</span>
+              <span class="tooltip-value">{{ vehicleSpecs()!.color }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</p-dialog>

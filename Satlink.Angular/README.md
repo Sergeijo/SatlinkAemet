@@ -7,6 +7,33 @@ The project incorporates:
 - Standalone Components (no NgModules)
 - Signals
 - Built-in Control Flow (`@if`, `@for`, `@switch`)
+- **MapLibre GL** for interactive maps 🆕
+
+## 🗺️ New Feature: Interactive Map
+
+The project now includes an **interactive map of Madrid** with an animated vehicle traveling through the city streets.
+
+### Features
+
+- **3D Map**: 45° pitch view using MapLibre GL
+- **Animated Vehicle**: Car traveling through 12 iconic Madrid locations
+- **Interactive Tooltip**: Detailed vehicle information on hover
+- **Full Controls**: Zoom, rotation, fullscreen
+- **Modern Design**: UI with gradients and glassmorphism effects
+
+### How to Use
+
+1. Navigate to the AEMET page
+2. Click the **"Mostrar Mapa"** button (next to "Descargar JSON")
+3. Interact with the map and vehicle
+
+### Documentation
+
+- **[Quick Start](QUICKSTART.md)**: Installation and usage guide
+- **[Implementation](MAPA_IMPLEMENTATION.md)**: Complete technical details
+- **[Structure](ESTRUCTURA_PROYECTO.md)**: Code architecture
+- **[Technical Docs](src/app/features/map/README.md)**: API and patterns
+
 
 ## Development server
 

@@ -31,6 +31,13 @@
               (onClick)="downloadJsonFile()"
               [disabled]="items().length === 0"
               />
+
+            <p-button
+              label="Mostrar Mapa"
+              icon="pi pi-map"
+              severity="success"
+              (onClick)="showMap()"
+              />
             </div>
           </div>
 
@@ -82,4 +89,6 @@
             </p>
           }
         </div>
+
+        <app-map-dialog />
       </section>
